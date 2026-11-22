@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lab Service Desk · Free</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* VOICE: a real help desk shift, calm and practical
+   IDEA: sitting at the domain controller: ticket on one side, the server's own tools on the other
+   PICTURE: the working desk: queue, ticket, and a DC01 window with ADUC and PowerShell
+   COLOUR and TYPE: Franck's portfolio navy + sky blue; Windows-grey ADUC; PowerShell blue; Space Grotesk + Inter
+   LAYOUT: queue left, ticket + server right; stacks on phones */
+:root{--bg:#0B1626;--panel:#10203A;--line:#22354F;--ink:#FFFFFF;--soft:#C9D4E3;--mute:#9FB0C6;--acc:#7DD3FC;color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Inter,system-ui,sans-serif;overflow-x:clip}
+button,input,select,textarea{font:inherit}
+button{cursor:pointer;min-height:40px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:0 12px}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.pri{background:var(--acc);color:var(--bg);border-color:var(--acc);font-weight:600}
+a{color:var(--acc)}
+h2,h3{font-family:'Space Grotesk',sans-serif;margin:0;line-height:1.2}h2{font-size:20px}h3{font-size:16px}
+header{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.hw{max-width:1320px;margin:0 auto;padding:10px max(2vw,12px);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.brand{font:700 19px 'Space Grotesk',sans-serif}.brand small{display:block;font:500 12px Inter;color:var(--mute)}
+.top{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.chip{border:1px solid var(--line);background:var(--panel);padding:6px 10px;font-size:14px}.chip b{color:var(--acc)}
+.seg{display:flex}.seg button{min-width:44px;padding:0 10px}.seg .on{background:var(--acc);color:var(--bg);border-color:var(--acc)}
+main{max-width:1320px;margin:0 auto;padding:16px max(2vw,12px) 40px;display:grid;grid-template-columns:minmax(0,300px) minmax(0,1fr);gap:16px}
+.card{background:var(--panel);border:1px solid var(--line);padding:14px}
+.small{font-size:13px;color:var(--mute)}
+.qlist{display:flex;flex-direction:column;gap:6px;margin-top:10px}
+.qi{text-align:left;padding:9px 11px;display:flex;flex-direction:column;gap:3px;background:var(--bg)}
+.qi.sel{border-color:var(--acc)}.qi.done .qt{text-decoration:line-through;color:var(--mute)}
+.qtop{display:flex;justify-content:space-between;gap:6px;font-size:12px;color:var(--mute)}
+.qt{font-weight:600;font-size:14px}
+.tag{font-size:12px;padding:2px 7px;border:1px solid var(--line);white-space:nowrap}
+.t-high{color:#FCA5A5;border-color:#7F1D1D}.t-med{color:#FCD34D;border-color:#78350F}.t-low{color:var(--soft)}.t-ok{color:#86EFAC;border-color:#14532D}.t-ps{color:#93C5FD;border-color:#1E3A8A}
+.tk{display:flex;flex-direction:column;gap:10px}
+.meta{display:flex;gap:6px;flex-wrap:wrap}
+.body{background:var(--bg);border:1px solid var(--line);padding:12px;color:var(--soft);white-space:pre-line}
+details{border:1px dashed var(--line);padding:8px 12px}summary{cursor:pointer;color:var(--acc);font-weight:600}
+details ol{margin:8px 0 0;padding-left:20px;color:var(--soft);font-size:14px}
+label{font-size:14px;font-weight:600}
+textarea{width:100%;background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:10px;min-height:84px;resize:vertical}
+select{min-height:40px;background:var(--bg);color:var(--ink);border:1px solid var(--line);padding:0 8px}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.fb{padding:11px 13px;border:1px solid}.good{background:#052E1A;border-color:#14532D;color:#DCFCE7}.badf{background:#2A0B0B;border-color:#7F1D1D;color:#FEE2E2}
+/* server window */
+.srv{margin-top:16px;border:1px solid #3B4A5E;background:#1E2733}
+.tb{display:flex;align-items:center;justify-content:space-between;gap:8px;background:#0F1720;padding:6px 10px;font-size:13px;color:var(--soft)}
+.apps{display:flex;gap:4px;padding:6px 6px 0;background:#1E2733;flex-wrap:wrap}
+.apps button{min-height:36px;font-size:13px;background:#2B3644;border-color:#3B4A5E}.apps .on{background:#F3F3F3;color:#111;border-color:#F3F3F3}
+.aduc{background:#F3F3F3;color:#111;font:14px 'Segoe UI',Inter,sans-serif}
+.aduc .bar{display:flex;gap:4px;flex-wrap:wrap;padding:6px;border-bottom:1px solid #D0D0D0;background:#FAFAFA}
+.aduc .bar button{background:#fff;color:#111;border:1px solid #C8C8C8;min-height:34px;font-size:13px}
+.aduc .bar button:disabled{color:#999;cursor:default}
+.split{display:grid;grid-template-columns:minmax(0,190px) minmax(0,1fr);min-height:300px}
+.tree{border-right:1px solid #D0D0D0;padding:8px;background:#fff}
+.tree button{display:block;width:100%;text-align:left;background:none;border:0;color:#111;min-height:30px;padding:0 6px;font-size:13px}
+.tree .on{background:#CCE4F7}
+.list{background:#fff;overflow-x:auto}
+.list table{width:100%;border-collapse:collapse;font-size:13px}
+.list th{text-align:left;font-weight:600;padding:6px 8px;border-bottom:1px solid #D0D0D0;background:#F7F7F7}
+.list td{padding:6px 8px;border-bottom:1px solid #EEE;cursor:pointer;white-space:nowrap}
+.list tr.on td{background:#CCE4F7}.list .dis{color:#888}
+.ico{display:inline-block;width:14px;height:14px;vertical-align:-2px;margin-right:6px;border-radius:50%;background:#5B8DD6;position:relative}
+.ico.d::after{content:'';position:absolute;right:-3px;bottom:-3px;width:8px;height:8px;background:#C42B1C;border-radius:50%;border:1px solid #fff}
+.ctx{position:fixed;z-index:40;background:#fff;color:#111;border:1px solid #BBB;box-shadow:0 4px 14px rgba(0,0,0,.35);min-width:200px;padding:4px 0}
+.ctx button{display:block;width:100%;text-align:left;background:none;border:0;color:#111;min-height:32px;font-size:13px;padding:0 14px}
+.ctx button:hover{background:#E5F1FB}
+.dlgwrap{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:12px}
+.dlg{background:#F3F3F3;color:#111;width:min(460px,100%);border:1px solid #888;font:14px 'Segoe UI',Inter,sans-serif}
+.dlg .dt{background:#fff;padding:8px 12px;border-bottom:1px solid #DDD;display:flex;justify-content:space-between;align-items:center}
+.dlg .dt button{background:none;border:0;color:#111;min-height:30px}
+.dlg .tabs{display:flex;gap:2px;padding:8px 12px 0}.dlg .tabs button{background:#E6E6E6;color:#111;border:1px solid #CCC;border-bottom:0;min-height:32px;font-size:13px}.dlg .tabs .on{background:#fff}
+.dlg .db{background:#fff;margin:0 12px;border:1px solid #CCC;padding:12px;display:flex;flex-direction:column;gap:8px;min-height:150px}
+.dlg .df{display:flex;justify-content:flex-end;gap:6px;padding:10px 12px}
+.dlg .df button,.dlg .db button{background:#fff;color:#111;border:1px solid #AAA;min-height:32px;font-size:13px}
+.dlg input[type=password],.dlg select{background:#fff;color:#111;border:1px solid #AAA;min-height:32px;padding:0 6px;width:100%}
+.dlg label{font-weight:400;display:flex;gap:8px;align-items:center}
+.dlg .mlist{border:1px solid #CCC;min-height:80px;padding:4px}.dlg .mlist div{padding:3px 6px;cursor:pointer}.dlg .mlist .on{background:#CCE4F7}
+.ps{background:#012456;color:#EEEDF0;font:14px/1.45 'JetBrains Mono',Consolas,monospace;padding:10px;min-height:300px;max-height:420px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.ps .err{color:#FF8A8A}.ps .cmd{color:#FDFD96}
+.psin{display:flex;align-items:center;gap:6px;background:#012456;padding:0 10px 10px;font:14px 'JetBrains Mono',monospace;color:#EEEDF0}
+.psin input{flex:1;background:#00183C;color:#fff;border:1px solid #2A4B7C;min-height:38px;padding:0 8px;font:14px 'JetBrains Mono',monospace}
+.cheat{display:flex;gap:6px;flex-wrap:wrap;background:#012456;padding:0 10px 10px}
+.cheat button{background:#0B3A75;border-color:#2A4B7C;color:#DDE9FF;min-height:32px;font:12px 'JetBrains Mono',monospace}
+footer{border-top:1px solid var(--line);color:var(--mute);font-size:13px}
+footer div{max-width:1320px;margin:0 auto;padding:14px max(2vw,12px);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+@media(max-width:860px){main{grid-template-columns:minmax(0,1fr)}.split{grid-template-columns:minmax(0,1fr)}.tree{display:flex;flex-wrap:wrap;border-right:0;border-bottom:1px solid #D0D0D0}.tree button{width:auto}}
+</style>
+</head>
+<body>
+<header><div class="hw">
+  <div class="brand">Lab Service Desk <span style="color:var(--acc)">· Free</span><small id="tagline"></small></div>
+  <div class="top">
+    <div class="seg" role="group" id="paths"></div>
+    <span class="chip" id="rank"></span><span class="chip" id="pts"></span>
+    <div class="seg" role="group" aria-label="Language / Langue"><button id="en">EN</button><button id="fr">FR</button></div>
+  </div>
+</div></header>
+<main>
+  <section class="card" aria-labelledby="qh">
+    <h2 id="qh"></h2><div class="small" id="qsub"></div>
+    <div class="qlist" id="queue"></div>
+    <div class="row" style="margin-top:12px"><button id="reset"></button></div>
+  </section>
+  <section>
+    <div class="card tk" id="ticket"></div>
+    <div class="srv">
+      <div class="tb"><span>DC01 · lab.local · Windows Server 2022</span><span id="srvnote"></span></div>
+      <div class="apps"><button id="appAduc"></button><button id="appPs">Windows PowerShell</button></div>
+      <div id="app"></div>
+    </div>
+  </section>
+</main>
+<div id="layer"></div>
+<footer><div><span id="foot"></span><span><a id="report" href="https://docs.google.com/forms/d/e/1FAIpQLSe4jqyXX0SNE2uCGGqsx2FW9IFh3Gu3ZBDV6NR3caOGc8TF6A/viewform" target="_blank" rel="noopener"></a> · <a id="home" href="https://franck-mabika.github.io/"></a></span></div></footer>
+<script>
+{
+const T={
+en:{tag:'Free practice: solve real help desk tickets on a simulated domain controller',paths:['All','Beginner','Intermediate','Advanced'],rank:'Rank',pts:'points',queue:'Ticket queue',qsub:'Assign a ticket, fix it on DC01 with the console or PowerShell, write your notes, close it.',reset:'Reset the lab',aduc:'Active Directory Users and Computers',srvnote:'Simulated: nothing real is changed',assign:'Assign to me',assigned:'Assigned to you',unassigned:'Unassigned',from:'From',prio:'Priority',level:'Level',high:'High',med:'Medium',low:'Low',psOnly:'PowerShell only',done:'Solved',hintT:'Hint: show me how (click again to hide)',gui:'With the console',ps:'With PowerShell',notes:'Ticket notes: what you checked, what you did, the result',notesPh:'Example: Checked mlee in AD: locked out after failed logins. Unlocked the account, user confirmed sign-in works.',res:'Resolution',resolved:'Resolved',denied:'Denied / escalated to a manager',close:'Close ticket',needAssign:'Assign the ticket to yourself first.',short:'Write a bit more in your notes: what you checked, what you did, the result.',good:'Ticket solved.',bad:'Not solved yet. Check the user again and fix what\u2019s missing.',needPs:'This ticket must be solved with PowerShell. Undo nothing, just redo the fix in PowerShell.',allDone:'Every ticket in this path is solved. Try the next path!',foot:'Built by Franck Mabika · all names are fictional',report:'Report a problem',home:'My portfolio',ranks:['Trainee','Tier 1','Tier 2','Sysadmin','Domain hero'],
+ name:'Name',type:'Type',desc:'Description',user:'User',acc:'Account',general:'General',memberOf:'Member Of',resetPw:'Reset Password…',disable:'Disable Account',enable:'Enable Account',addGrp:'Add to a group…',move:'Move…',props:'Properties',newPw:'New password',confirm:'Confirm password',mustChange:'User must change password at next logon',unlockChk:'Unlock the user\u2019s account',unlockNow:'Unlock account. This account is currently locked out on this Active Directory Domain Controller.',isDisabled:'Account is disabled',ok:'OK',cancel:'Cancel',apply:'Apply',add:'Add…',remove:'Remove',pickGrp:'Select a group',pickOu:'Move to this OU',pwMismatch:'The passwords do not match.',pwWeak:'The password must be at least 12 characters.',pwDone:'The password for {u} has been changed.',selectUser:'Select a user first.',allUsers:'All users'},
+fr:{tag:'Pratique gratuite : résolvez de vrais billets sur un contrôleur de domaine simulé',paths:['Tous','Débutant','Intermédiaire','Avancé'],rank:'Rang',pts:'points',queue:'File de billets',qsub:'Prenez un billet, réglez-le sur DC01 avec la console ou PowerShell, rédigez vos notes, fermez-le.',reset:'Réinitialiser le labo',aduc:'Utilisateurs et ordinateurs Active Directory',srvnote:'Simulé : rien de réel n\u2019est modifié',assign:'M\u2019assigner',assigned:'Assigné à vous',unassigned:'Non assigné',from:'De',prio:'Priorité',level:'Niveau',high:'Haute',med:'Moyenne',low:'Basse',psOnly:'PowerShell seulement',done:'Résolu',hintT:'Indice : montre-moi comment (cliquez encore pour cacher)',gui:'Avec la console',ps:'Avec PowerShell',notes:'Notes du billet : ce que vous avez vérifié, ce que vous avez fait, le résultat',notesPh:'Exemple : Vérifié mlee dans AD : verrouillé après des essais ratés. Déverrouillé le compte, l\u2019utilisateur confirme qu\u2019il peut se connecter.',res:'Résolution',resolved:'Résolu',denied:'Refusé / transmis à un gestionnaire',close:'Fermer le billet',needAssign:'Assignez-vous le billet d\u2019abord.',short:'Écrivez un peu plus : ce que vous avez vérifié, ce que vous avez fait, le résultat.',good:'Billet résolu.',bad:'Pas encore résolu. Revérifiez l\u2019utilisateur et corrigez ce qui manque.',needPs:'Ce billet doit être résolu avec PowerShell. Refaites simplement la correction dans PowerShell.',allDone:'Tous les billets de ce parcours sont résolus. Essayez le parcours suivant!',foot:'Créé par Franck Mabika · tous les noms sont fictifs',report:'Signaler un problème',home:'Mon portfolio',ranks:['Stagiaire','Niveau 1','Niveau 2','Administrateur','Héros du domaine'],
+ name:'Nom',type:'Type',desc:'Description',user:'Utilisateur',acc:'Compte',general:'Général',memberOf:'Membre de',resetPw:'Réinitialiser le mot de passe…',disable:'Désactiver le compte',enable:'Activer le compte',addGrp:'Ajouter à un groupe…',move:'Déplacer…',props:'Propriétés',newPw:'Nouveau mot de passe',confirm:'Confirmer le mot de passe',mustChange:'L\u2019utilisateur doit changer le mot de passe à la prochaine ouverture de session',unlockChk:'Déverrouiller le compte de l\u2019utilisateur',unlockNow:'Déverrouiller le compte. Ce compte est actuellement verrouillé sur ce contrôleur de domaine.',isDisabled:'Le compte est désactivé',ok:'OK',cancel:'Annuler',apply:'Appliquer',add:'Ajouter…',remove:'Supprimer',pickGrp:'Choisir un groupe',pickOu:'Déplacer vers cette UO',pwMismatch:'Les mots de passe ne correspondent pas.',pwWeak:'Le mot de passe doit contenir au moins 12 caractères.',pwDone:'Le mot de passe de {u} a été modifié.',selectUser:'Choisissez d\u2019abord un utilisateur.',allUsers:'Tous les utilisateurs'}
+};
+const GROUPS=['Sales Team','HR Team','Finance Team','IT Admins'],OUS=['Sales','HR','Finance','IT'];
+const U=(n,ou,g,en=true,lock=false)=>({n,ou,g,en,lock,pw:false,mc:false});
+const START=()=>({jdoe:U('Jane Doe','Sales',['Sales Team']),mlee:U('Mark Lee','HR',['HR Team'],true,true),aruiz:U('Ana Ruiz','IT',['IT Admins']),rpatel:U('Rohan Patel','Sales',[]),ktran:U('Kevin Tran','HR',['HR Team']),smartin:U('Sofia Martin','Finance',['Finance Team']),lchen:U('Leo Chen','Sales',['Sales Team'],false),tbrown:U('Tom Brown','Finance',['Finance Team'],true,true),nkim:U('Nina Kim','HR',['HR Team'],true,true),cdupont:U('Claire Dupont','IT',['IT Admins'])});
+// lv: 1 beginner, 2 intermediate, 3 advanced. ps: must be solved with PowerShell
+const TK=[
+{id:'INC-1001',lv:1,p:'high',from:'Mark Lee · HR',res:'resolved',chk:(s)=>!s.mlee.lock&&s.mlee.en,
+ en:{t:'Can\u2019t sign in: "account locked"',b:'I typed my password wrong a few times this morning and now Windows says my account is locked out. I have a meeting in 20 minutes!',g:['Open Active Directory Users and Computers and find Mark Lee (HR).','Right-click him → Properties → Account tab.','Tick "Unlock account", then OK. No password reset is needed.'],p:['Check him: Get-ADUser mlee -Properties LockedOut','Unlock him with Unlock-ADAccount and his username.'],ok:'Lockout is a safety feature after too many failed tries. Unlocking is enough: his password was never stolen.'},
+ fr:{t:'Impossible de se connecter : « compte verrouillé »',b:'J\u2019ai mal tapé mon mot de passe quelques fois ce matin et Windows dit que mon compte est verrouillé. J\u2019ai une réunion dans 20 minutes!',g:['Ouvrez Utilisateurs et ordinateurs AD et trouvez Mark Lee (RH).','Clic droit → Propriétés → onglet Compte.','Cochez « Déverrouiller le compte », puis OK. Aucune réinitialisation n\u2019est nécessaire.'],p:['Vérifiez : Get-ADUser mlee -Properties LockedOut','Déverrouillez-le avec Unlock-ADAccount et son nom d\u2019utilisateur.'],ok:'Le verrouillage protège après trop d\u2019essais. Déverrouiller suffit : son mot de passe n\u2019a pas été volé.'}},
+{id:'INC-1002',lv:1,p:'med',from:'Ana Ruiz · IT',res:'resolved',chk:(s)=>s.aruiz.pw&&s.aruiz.mc&&s.aruiz.en,
+ en:{t:'Forgot my password after vacation',b:'Back from two weeks off and I can\u2019t remember my password. Can you reset it?',g:['Find Ana Ruiz (IT), right-click → Reset Password…','Type a temporary password (12+ characters) twice.','Tick "User must change password at next logon", then OK.'],p:['Set-ADAccountPassword with -Identity, -Reset and -NewPassword (Read-Host -AsSecureString).','Then Set-ADUser with -ChangePasswordAtLogon $true.'],ok:'The user must choose a new password at the next sign-in, so the help desk never knows it.'},
+ fr:{t:'Mot de passe oublié après les vacances',b:'De retour après deux semaines et je ne me souviens plus de mon mot de passe. Pouvez-vous le réinitialiser?',g:['Trouvez Ana Ruiz (TI), clic droit → Réinitialiser le mot de passe…','Tapez un mot de passe temporaire (12 caractères ou plus) deux fois.','Cochez « L\u2019utilisateur doit changer le mot de passe… », puis OK.'],p:['Set-ADAccountPassword avec -Identity, -Reset et -NewPassword (Read-Host -AsSecureString).','Puis Set-ADUser avec -ChangePasswordAtLogon $true.'],ok:'L\u2019utilisateur choisit un nouveau mot de passe à la prochaine connexion, pour que le soutien ne le connaisse jamais.'}},
+{id:'REQ-2001',lv:1,p:'med',from:'Sales manager',res:'resolved',chk:(s)=>s.rpatel.g.includes('Sales Team')&&!s.rpatel.g.includes('IT Admins'),
+ en:{t:'New hire needs the Sales share',b:'Rohan Patel started in Sales today. He can sign in but can\u2019t open the Sales folder. Give him the same access as the team.',g:['Find Rohan Patel (Sales), right-click → Add to a group…','Choose the Sales Team group, then OK.'],p:['Add-ADGroupMember -Identity "Sales Team" -Members <username>'],ok:'Access is given through groups, not person by person. That keeps it to exactly what the team needs: least privilege.'},
+ fr:{t:'Nouvel employé : accès au partage Ventes',b:'Rohan Patel a commencé aux Ventes aujourd\u2019hui. Il se connecte mais n\u2019ouvre pas le dossier Ventes. Donnez-lui le même accès que l\u2019équipe.',g:['Trouvez Rohan Patel (Ventes), clic droit → Ajouter à un groupe…','Choisissez Sales Team, puis OK.'],p:['Add-ADGroupMember -Identity "Sales Team" -Members <nom_utilisateur>'],ok:'On donne l\u2019accès par les groupes, pas personne par personne : exactement ce dont l\u2019équipe a besoin, le moindre privilège.'}},
+{id:'INC-1003',lv:1,p:'med',from:'Leo Chen · Sales',res:'resolved',chk:(s)=>s.lchen.en&&s.lchen.g.includes('Sales Team'),
+ en:{t:'Back from leave, account doesn\u2019t work',b:'I\u2019m back from parental leave today and my sign-in says the account is disabled.',g:['Find Leo Chen. A red mark on his icon means disabled.','Right-click → Enable Account.'],p:['Enable-ADAccount -Identity <username>'],ok:'Accounts are often disabled during long leaves. Enabling it is the whole fix: his groups are still right.'},
+ fr:{t:'Retour de congé, le compte ne marche pas',b:'Je reviens de congé parental aujourd\u2019hui et la connexion dit que mon compte est désactivé.',g:['Trouvez Leo Chen. Une marque rouge sur l\u2019icône veut dire désactivé.','Clic droit → Activer le compte.'],p:['Enable-ADAccount -Identity <nom_utilisateur>'],ok:'Les comptes sont souvent désactivés pendant les longs congés. L\u2019activer règle tout : ses groupes sont encore bons.'}},
+{id:'SEC-3001',lv:2,ps:true,p:'high',from:'Sofia Martin · Finance',res:'resolved',chk:(s)=>s.smartin.pw&&s.smartin.mc&&s.smartin.en,
+ en:{t:'I typed my password into a weird email link',b:'An email said my mailbox was full, so I entered my password on the page. Then the address looked strange. What do I do?',g:['This one must be done in PowerShell.'],p:['Reset her password: Set-ADAccountPassword -Identity smartin -Reset -NewPassword (Read-Host -AsSecureString "Temp password")','Force a change: Set-ADUser smartin -ChangePasswordAtLogon $true','Check: Get-ADUser smartin -Properties PasswordLastSet'],ok:'A stolen password must be reset right away with a forced change. In a real company you also report it to the security team.'},
+ fr:{t:'J\u2019ai tapé mon mot de passe dans un lien bizarre',b:'Un courriel disait que ma boîte était pleine, alors j\u2019ai entré mon mot de passe. Ensuite l\u2019adresse semblait étrange. Je fais quoi?',g:['Ce billet se fait dans PowerShell.'],p:['Réinitialisez : Set-ADAccountPassword -Identity smartin -Reset -NewPassword (Read-Host -AsSecureString "Temp password")','Forcez le changement : Set-ADUser smartin -ChangePasswordAtLogon $true','Vérifiez : Get-ADUser smartin -Properties PasswordLastSet'],ok:'Un mot de passe volé se réinitialise tout de suite avec changement obligatoire. En entreprise, on le signale aussi à l\u2019équipe de sécurité.'}},
+{id:'REQ-2003',lv:2,ps:true,p:'high',from:'HR manager',res:'resolved',chk:(s)=>!s.ktran.en&&s.ktran.g.length===0,
+ en:{t:'Kevin Tran left the company today',b:'Kevin Tran\u2019s last day was today. Make sure he can\u2019t access anything anymore.',g:['This one must be done in PowerShell.'],p:['See his groups: Get-ADPrincipalGroupMembership ktran','Disable (don\u2019t delete): Disable-ADAccount ...','Remove each group: Remove-ADGroupMember -Identity "<group>" -Members ktran -Confirm:$false'],ok:'Disable instead of delete: the account and its history stay for audits, but nobody can use it. Removing groups closes leftover access.'},
+ fr:{t:'Kevin Tran a quitté l\u2019entreprise',b:'C\u2019était la dernière journée de Kevin Tran. Assurez-vous qu\u2019il n\u2019a plus accès à rien.',g:['Ce billet se fait dans PowerShell.'],p:['Voir ses groupes : Get-ADPrincipalGroupMembership ktran','Désactiver (ne pas supprimer) : Disable-ADAccount ...','Retirer chaque groupe : Remove-ADGroupMember -Identity "<groupe>" -Members ktran -Confirm:$false'],ok:'Désactiver plutôt que supprimer : le compte et son historique restent pour les audits, mais personne ne peut l\u2019utiliser.'}},
+{id:'REQ-2002',lv:2,p:'med',from:'HR manager',res:'resolved',chk:(s)=>s.jdoe.ou==='HR'&&s.jdoe.g.includes('HR Team')&&!s.jdoe.g.includes('Sales Team'),
+ en:{t:'Jane Doe moved from Sales to HR',b:'Jane Doe transferred from Sales to HR this week. Update her account to match her new job.',g:['Move her to the HR OU (right-click → Move…).','Add her to HR Team.','Properties → Member Of: remove Sales Team.'],p:['Move-ADObject -Identity "CN=Jane Doe,OU=Sales,DC=lab,DC=local" -TargetPath "OU=HR,DC=lab,DC=local"','Add-ADGroupMember and Remove-ADGroupMember for the groups.'],ok:'When someone changes jobs, remove the old access too. Forgotten access piles up over time: that\u2019s privilege creep.'},
+ fr:{t:'Jane Doe passe des Ventes aux RH',b:'Jane Doe a été mutée des Ventes aux RH cette semaine. Mettez son compte à jour selon son nouveau poste.',g:['Déplacez-la dans l\u2019UO HR (clic droit → Déplacer…).','Ajoutez-la à HR Team.','Propriétés → Membre de : retirez Sales Team.'],p:['Move-ADObject -Identity "CN=Jane Doe,OU=Sales,DC=lab,DC=local" -TargetPath "OU=HR,DC=lab,DC=local"','Add-ADGroupMember et Remove-ADGroupMember pour les groupes.'],ok:'Quand quelqu\u2019un change de poste, on retire aussi l\u2019ancien accès. Les accès oubliés s\u2019accumulent : c\u2019est la dérive des privilèges.'}},
+{id:'REQ-2004',lv:2,p:'low',from:'Rohan Patel · Sales',res:'denied',chk:(s)=>!s.rpatel.g.includes('IT Admins'),
+ en:{t:'"Add me to IT Admins, just for today"',b:'Can you add me to IT Admins for today? I want to install a program. I\u2019ll ask you to remove me tomorrow, promise.',g:['Does a Sales employee need admin rights?','Change nothing in AD. Choose the right resolution.'],p:['You can confirm who is in the group: Get-ADGroupMember "IT Admins"'],ok:'Never grant admin rights because someone asks nicely: it breaks least privilege and is classic social engineering. Deny it and send it to his manager.'},
+ fr:{t:'« Ajoute-moi à IT Admins, juste aujourd\u2019hui »',b:'Peux-tu m\u2019ajouter à IT Admins pour aujourd\u2019hui? Je veux installer un programme. Je te demande de me retirer demain, promis.',g:['Un employé des Ventes a-t-il besoin de droits d\u2019administrateur?','Ne changez rien dans AD. Choisissez la bonne résolution.'],p:['Vous pouvez vérifier le groupe : Get-ADGroupMember "IT Admins"'],ok:'On ne donne jamais de droits d\u2019administrateur parce qu\u2019on le demande gentiment : ça brise le moindre privilège. Refusez et transmettez à son gestionnaire.'}},
+{id:'INC-1010',lv:3,ps:true,p:'high',from:'Service desk lead',res:'resolved',chk:(s,f)=>Object.values(s).every(u=>!u.lock)&&f.pipeUnlock,
+ en:{t:'Monday morning: several users locked out',b:'After the weekend password policy change, several people are locked out. Unlock all of them at once: don\u2019t click them one by one.',g:['This one must be done in PowerShell, in one command.'],p:['Find them: Search-ADAccount -LockedOut','Pipe the result into the unlock command with |'],ok:'Pipelines let one command feed the next. Finding and fixing many accounts at once is everyday sysadmin work.'},
+ fr:{t:'Lundi matin : plusieurs utilisateurs verrouillés',b:'Après le changement de politique du week-end, plusieurs personnes sont verrouillées. Déverrouillez-les toutes d\u2019un coup, pas une par une.',g:['Ce billet se fait dans PowerShell, en une commande.'],p:['Trouvez-les : Search-ADAccount -LockedOut','Envoyez le résultat à la commande de déverrouillage avec |'],ok:'Le pipeline passe le résultat d\u2019une commande à la suivante. Trouver et corriger plusieurs comptes d\u2019un coup, c\u2019est le quotidien d\u2019un administrateur.'}},
+{id:'AUD-4001',lv:3,ps:true,p:'med',from:'Security team',res:'resolved',chk:(s,f)=>{const m=Object.entries(s).filter(([k,u])=>u.g.includes('IT Admins')).map(([k])=>k);return m.length===1&&m[0]==='aruiz'&&f.listedAdmins},
+ en:{t:'Access review: who is in IT Admins?',b:'Quarterly audit. Only Ana Ruiz should be in IT Admins. Claire Dupont\u2019s contract ended last month. List the members first, then fix the group.',g:['This one must be done in PowerShell.'],p:['List members: Get-ADGroupMember "IT Admins"','Remove anyone who shouldn\u2019t be there with Remove-ADGroupMember.'],ok:'Access reviews catch leftover admin rights, one of the most common ways attackers get in. Always list first, then change.'},
+ fr:{t:'Revue d\u2019accès : qui est dans IT Admins?',b:'Audit trimestriel. Seule Ana Ruiz doit être dans IT Admins. Le contrat de Claire Dupont a pris fin le mois dernier. Listez d\u2019abord les membres, puis corrigez le groupe.',g:['Ce billet se fait dans PowerShell.'],p:['Lister : Get-ADGroupMember "IT Admins"','Retirez ceux qui ne devraient pas y être avec Remove-ADGroupMember.'],ok:'Les revues d\u2019accès trouvent les droits d\u2019administrateur oubliés, une porte d\u2019entrée fréquente pour les attaquants. Toujours lister avant de changer.'}}
+];
+const load=()=>{try{const d=JSON.parse(localStorage.getItem('lsd-free-v2')||'null');if(d&&d.ad)return d}catch(e){}return null};
+const fresh=()=>({lang:(navigator.language||'en').toLowerCase().startsWith('fr')?'fr':'en',ad:START(),solved:{},asg:{},notes:{},pts:0,sel:TK[0].id,path:0,app:'aduc',ou:'all',su:null,ps:[],psHist:[],flags:{},via:{},fb:null});
+let st=load()||fresh();
+const save=()=>{try{localStorage.setItem('lsd-free-v2',JSON.stringify(st))}catch(e){}};
+const L=()=>T[st.lang],$=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dn=u=>`CN=${st.ad[u].n},OU=${st.ad[u].ou},DC=lab,DC=local`;
+// every change goes through here, tagged with how it was done
+function touch(u,via){(st.via[u]=st.via[u]||{})[via]=1}
+const A={
+ unlock:(u,via)=>{st.ad[u].lock=false;touch(u,via)},
+ reset:(u,via,mc,unl)=>{const x=st.ad[u];x.pw=true;if(mc!==undefined)x.mc=mc;if(unl)x.lock=false;touch(u,via)},
+ mc:(u,via,v)=>{st.ad[u].mc=v;touch(u,via)},
+ enable:(u,via)=>{st.ad[u].en=true;touch(u,via)},
+ disable:(u,via)=>{st.ad[u].en=false;touch(u,via)},
+ add:(u,via,g)=>{const x=st.ad[u];if(!x.g.includes(g))x.g.push(g);touch(u,via)},
+ rm:(u,via,g)=>{st.ad[u].g=st.ad[u].g.filter(x=>x!==g);touch(u,via)},
+ move:(u,via,ou)=>{st.ad[u].ou=ou;touch(u,via)}
+};
+const tkUsers={'INC-1001':['mlee'],'INC-1002':['aruiz'],'REQ-2001':['rpatel'],'INC-1003':['lchen'],'SEC-3001':['smartin'],'REQ-2003':['ktran'],'REQ-2002':['jdoe'],'REQ-2004':[],'INC-1010':[],'AUD-4001':['cdupont']};
+function closeTicket(){
+ const t=TK.find(k=>k.id===st.sel),l=L(),note=(st.notes[t.id]||'').trim();
+ if(!st.asg[t.id]){st.fb='assign';return draw()}
+ if(note.length<25){st.fb='short';return draw()}
+ const ok=t.chk(st.ad,st.flags)&&$('res').value===t.res;
+ if(ok&&t.ps&&t.id!=='INC-1010'&&t.id!=='AUD-4001'){const us=tkUsers[t.id];if(!us.every(u=>st.via[u]&&st.via[u].ps)){st.fb='needPs';return draw()}}
+ if(ok){if(!st.solved[t.id])st.pts+=t.lv*10+(t.ps?5:0);st.solved[t.id]=true;st.fb='good'}else st.fb='bad';
+ save();draw();
+}
+/* ---------- PowerShell ---------- */
+function out(text,cls){st.ps.push({t:text,c:cls||''});if(st.ps.length>200)st.ps=st.ps.slice(-200)}
+function args(s){const a=[];s.replace(/"([^"]*)"|'([^']*)'|(\S+)/g,(m,d,q,w)=>{a.push(d!==undefined?d:q!==undefined?q:w)});return a}
+function opt(a,name){const i=a.findIndex(x=>x.toLowerCase()==='-'+name.toLowerCase());return i>=0?(a[i+1]===undefined?true:a[i+1]):undefined}
+function has(a,name){return a.some(x=>x.toLowerCase()==='-'+name.toLowerCase()||x.toLowerCase().startsWith('-'+name.toLowerCase()+':'))}
+function ident(a){let v=opt(a,'Identity');if(v===undefined){const p=a.slice(1).filter((x,i,arr)=>!x.startsWith('-')&&!(arr[i-1]||'').startsWith('-'));v=p[0]}return v}
+function findUser(id){if(!id)return null;id=String(id);const k=id.toLowerCase();if(st.ad[k])return k;const m=Object.keys(st.ad).find(u=>dn(u).toLowerCase()===k||st.ad[u].n.toLowerCase()===k);return m||null}
+const notFound=id=>{throw new Error(`Cannot find an object with identity: '${id}' under: 'DC=lab,DC=local'.`)};
+const grpOk=g=>{const m=GROUPS.find(x=>x.toLowerCase()===String(g).toLowerCase());if(!m)throw new Error(`Cannot find an object with identity: '${g}' under: 'DC=lab,DC=local'.`);return m};
+function userBlock(u,props){const x=st.ad[u];let s=`DistinguishedName : ${dn(u)}\nEnabled           : ${x.en?'True':'False'}\nName              : ${x.n}\nSamAccountName    : ${u}`;
+ if(props){s+=`\nLockedOut         : ${x.lock?'True':'False'}\nPasswordExpired   : ${x.mc?'True':'False'}\nPasswordLastSet   : ${x.pw?new Date().toLocaleString('en-US'):'10/30/2026 8:12:03 PM'}\nMemberOf          : {${x.g.map(g=>`CN=${g},OU=Groups,DC=lab,DC=local`).join(', ')}}`}return s+'\n'}
+function table(us){return 'Name                 SamAccountName  Enabled  LockedOut\n----                 --------------  -------  ---------\n'+us.map(u=>{const x=st.ad[u];return x.n.padEnd(21)+u.padEnd(16)+(x.en?'True':'False').padEnd(9)+(x.lock?'True':'False')}).join('\n')+'\n'}
+function runOne(line,piped){
+ const a=args(line);if(!a.length)return null;const c=a[0].toLowerCase();
+ switch(c){
+ case 'cls':case 'clear':case 'clear-host':st.ps=[];return null;
+ case 'help':case 'get-help':out('Commands you can use in this lab:\n  Get-ADUser <user> [-Properties *]   Get-ADUser -Filter *\n  Search-ADAccount -LockedOut | -AccountDisabled\n  Unlock-ADAccount / Enable-ADAccount / Disable-ADAccount -Identity <user>\n  Set-ADAccountPassword -Identity <user> -Reset -NewPassword (Read-Host -AsSecureString "Temp password")\n  Set-ADUser -Identity <user> -ChangePasswordAtLogon $true\n  Get-ADGroupMember "<group>"   Get-ADPrincipalGroupMembership <user>\n  Add-ADGroupMember / Remove-ADGroupMember -Identity "<group>" -Members <user>\n  Move-ADObject -Identity "<DistinguishedName>" -TargetPath "OU=<ou>,DC=lab,DC=local"\n  Tip: use | to pipe, e.g. Search-ADAccount -LockedOut | Unlock-ADAccount\n');return null;
+ case 'get-aduser':{if(has(a,'Filter')){const us=Object.keys(st.ad);if(piped)return us;out(table(us));return us}
+  const id=ident(a),u=findUser(id);if(!u)notFound(id);if(piped)return [u];out(userBlock(u,has(a,'Properties')));return [u]}
+ case 'search-adaccount':{let us=[];if(has(a,'LockedOut'))us=Object.keys(st.ad).filter(u=>st.ad[u].lock);else if(has(a,'AccountDisabled'))us=Object.keys(st.ad).filter(u=>!st.ad[u].en);else throw new Error('Parameter set cannot be resolved. Use -LockedOut or -AccountDisabled.');
+  if(!piped)out(us.length?table(us):'');return us}
+ case 'unlock-adaccount':case 'enable-adaccount':case 'disable-adaccount':{
+  const list=piped||[(()=>{const id=ident(a),u=findUser(id);if(!u)notFound(id);return u})()];
+  const f={'unlock-adaccount':'unlock','enable-adaccount':'enable','disable-adaccount':'disable'}[c];
+  list.forEach(u=>A[f](u,'ps'));if(piped&&f==='unlock'&&list.length>1)st.flags.pipeUnlock=true;return null}
+ case 'set-adaccountpassword':{const id=ident(a),u=findUser(id);if(!u)notFound(id);if(!has(a,'Reset'))throw new Error('Use -Reset to set a new password without the old one.');
+  if(!/read-host/i.test(line)||!/asSecureString/i.test(line))throw new Error('Cannot bind parameter \'NewPassword\'. Use -NewPassword (Read-Host -AsSecureString "Temp password").');
+  out('Temp password: ************');A.reset(u,'ps');return null}
+ case 'set-aduser':{const id=ident(a),u=findUser(id);if(!u)notFound(id);const v=opt(a,'ChangePasswordAtLogon');if(v===undefined)throw new Error('This lab supports: Set-ADUser <user> -ChangePasswordAtLogon $true');
+  A.mc(u,'ps',String(v).toLowerCase()==='$true');return null}
+ case 'get-adgroupmember':{const g=grpOk(ident(a));const us=Object.keys(st.ad).filter(u=>st.ad[u].g.includes(g));if(g==='IT Admins')st.flags.listedAdmins=true;
+  out('name                 SamAccountName  objectClass\n----                 --------------  -----------\n'+us.map(u=>st.ad[u].n.padEnd(21)+u.padEnd(16)+'user').join('\n')+'\n');return us}
+ case 'get-adprincipalgroupmembership':{const id=ident(a),u=findUser(id);if(!u)notFound(id);out('name\n----\nDomain Users\n'+st.ad[u].g.join('\n')+'\n');return null}
+ case 'add-adgroupmember':case 'remove-adgroupmember':{const g=grpOk(opt(a,'Identity')||a[1]);const m=opt(a,'Members');if(!m||m===true)throw new Error('Missing an argument for parameter \'Members\'.');
+  const us=String(m).split(',').map(x=>{const u=findUser(x.trim());if(!u)notFound(x.trim());return u});
+  if(c==='remove-adgroupmember'&&!/-confirm:\$false/i.test(line))out('Confirm\nAre you sure you want to perform this action? [Y] Yes  (auto-answered Y in this lab)');
+  us.forEach(u=>A[c==='add-adgroupmember'?'add':'rm'](u,'ps',g));return null}
+ case 'move-adobject':{const id=opt(a,'Identity'),u=findUser(id);if(!u)notFound(id);const tp=String(opt(a,'TargetPath')||'');const mm=tp.match(/^OU=(\w+),DC=lab,DC=local$/i);
+  const ou=mm&&OUS.find(o=>o.toLowerCase()===mm[1].toLowerCase());if(!ou)throw new Error(`Directory object not found: '${tp}'`);A.move(u,'ps',ou);return null}
+ default:throw new Error(`${a[0]} : The term '${a[0]}' is not recognized as the name of a cmdlet, function, script file, or operable program. Check the spelling of the name, or if a path was included, verify that the path is correct and try again.`);
+ }
+}
+function runPs(line){
+ line=line.trim();if(!line)return;out('PS C:\\Users\\Administrator> '+line,'cmd');st.psHist.unshift(line);
+ try{const parts=line.split('|').map(s=>s.trim());let piped=null;
+  parts.forEach((p,i)=>{const r=runOne(p,i>0?piped:(parts.length>1?false:null));piped=Array.isArray(r)?r:null;if(i===0&&parts.length>1&&!Array.isArray(r))throw new Error('The first command did not return any objects to pipe.')})}
+ catch(e){out(e.message,'err')}
+ st.fb=null;save();draw();setTimeout(()=>{const p=$('psout');if(p)p.scrollTop=p.scrollHeight;const i=$('psin');if(i)i.focus()},0);
+}
+/* ---------- GUI dialogs ---------- */
+let dlg=null;
+function openDlg(kind,u){dlg={kind,u,tab:'acc',sel:null,err:''};drawDlg()}
+function drawDlg(){
+ const l=L(),lay=$('layer');if(!dlg){lay.innerHTML='';return}
+ const x=st.ad[dlg.u];let title='',body='';
+ if(dlg.kind==='reset'){title=l.resetPw.replace('…','');body=`<label style="display:block">${l.newPw}<input type="password" id="p1" autocomplete="off"></label><label style="display:block">${l.confirm}<input type="password" id="p2" autocomplete="off"></label><label><input type="checkbox" id="pmc" checked> ${l.mustChange}</label>${x.lock?`<label><input type="checkbox" id="pun"> ${l.unlockChk}</label>`:''}`}
+ if(dlg.kind==='group'){title=l.addGrp.replace('…','');body=`<label style="display:block">${l.pickGrp}<select id="gsel">${GROUPS.filter(g=>!x.g.includes(g)).map(g=>`<option>${g}</option>`).join('')}</select></label>`}
+ if(dlg.kind==='move'){title=l.move.replace('…','');body=`<label style="display:block">${l.pickOu}<select id="osel">${OUS.filter(o=>o!==x.ou).map(o=>`<option>${o}</option>`).join('')}</select></label>`}
+ if(dlg.kind==='props'){title=`${x.n} ${l.props}`;
+  const tabs=`<div class="tabs">${['gen','acc','mem'].map(k=>`<button data-tab="${k}" class="${dlg.tab===k?'on':''}">${{gen:l.general,acc:l.acc,mem:l.memberOf}[k]}</button>`).join('')}</div>`;
+  let inner='';
+  if(dlg.tab==='gen')inner=`<div>${l.name}: <b>${esc(x.n)}</b></div><div>SamAccountName: ${dlg.u}</div><div>OU: ${x.ou}</div><div style="word-break:break-all">${esc(dn(dlg.u))}</div>`;
+  if(dlg.tab==='acc')inner=`<div>User logon name: <b>${dlg.u}@lab.local</b></div>${x.lock?`<label><input type="checkbox" id="aun"> ${l.unlockNow}</label>`:''}<label><input type="checkbox" id="amc" ${x.mc?'checked':''}> ${l.mustChange}</label><label><input type="checkbox" id="adis" ${x.en?'':'checked'}> ${l.isDisabled}</label>`;
+  if(dlg.tab==='mem')inner=`<div class="mlist">${['Domain Users',...x.g].map(g=>`<div data-g="${g}" class="${dlg.sel===g?'on':''}">${g}</div>`).join('')}</div><div class="row"><button data-d="addg">${l.add}</button><button data-d="rmg" ${dlg.sel&&dlg.sel!=='Domain Users'?'':'disabled'}>${l.remove}</button></div>${dlg.adding?`<select id="gsel2">${GROUPS.filter(g=>!x.g.includes(g)).map(g=>`<option>${g}</option>`).join('')}</select><button data-d="addgo">${l.ok}</button>`:''}`;
+  body=tabs+`<div class="db">${inner}</div>`; }
+ const bodyWrap=dlg.kind==='props'?body:`<div class="db">${body}</div>`;
+ lay.innerHTML=`<div class="dlgwrap"><div class="dlg" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="dt"><b>${esc(title)}</b><button data-d="x" aria-label="${l.cancel}">✕</button></div>${bodyWrap}${dlg.err?`<div style="color:#C42B1C;padding:6px 12px">${esc(dlg.err)}</div>`:''}<div class="df"><button data-d="ok">${l.ok}</button><button data-d="x">${l.cancel}</button>${dlg.kind==='props'?`<button data-d="apply">${l.apply}</button>`:''}</div></div></div>`;
+}
+function dlgOk(close){
+ const l=L(),u=dlg.u,x=st.ad[u];
+ if(dlg.kind==='reset'){const a=$('p1').value,b=$('p2').value;if(a.length<12){dlg.err=l.pwWeak;return drawDlg()}if(a!==b){dlg.err=l.pwMismatch;return drawDlg()}
+  A.reset(u,'gui',$('pmc').checked,$('pun')&&$('pun').checked);toast(l.pwDone.replace('{u}',x.n))}
+ if(dlg.kind==='group'){const g=$('gsel').value;if(g)A.add(u,'gui',g)}
+ if(dlg.kind==='move'){const o=$('osel').value;if(o)A.move(u,'gui',o)}
+ if(dlg.kind==='props'&&dlg.tab==='acc'){if($('aun')&&$('aun').checked)A.unlock(u,'gui');if($('amc').checked!==x.mc)A.mc(u,'gui',$('amc').checked);const dis=$('adis').checked;if(dis===x.en)A[dis?'disable':'enable'](u,'gui')}
+ st.fb=null;save();draw();if(close){dlg=null}drawDlg();
+}
+let toastT;function toast(m){clearTimeout(toastT);const n=document.createElement('div');n.className='fb good';n.style.cssText='position:fixed;left:50%;bottom:20px;transform:translateX(-50%);z-index:60';n.textContent=m;document.body.appendChild(n);toastT=setTimeout(()=>n.remove(),2200)}
+/* ---------- render ---------- */
+function rank(){const r=L().ranks;return r[st.pts>=150?4:st.pts>=100?3:st.pts>=60?2:st.pts>=20?1:0]}
+function draw(){
+ const l=L(),lang=st.lang;document.documentElement.lang=lang;
+ $('tagline').textContent=l.tag;
+ for(const k of ['en','fr']){$(k).className=lang===k?'on':'';$(k).setAttribute('aria-pressed',lang===k)}
+ $('paths').innerHTML=l.paths.map((p,i)=>`<button data-path="${i}" class="${st.path===i?'on':''}" aria-pressed="${st.path===i}">${p}</button>`).join('');
+ $('rank').innerHTML=`${l.rank}: <b>${rank()}</b>`;$('pts').innerHTML=`<b>${st.pts}</b> ${l.pts} · ${Object.keys(st.solved).length}/${TK.length}`;
+ $('qh').textContent=l.queue;$('qsub').textContent=l.qsub;$('reset').textContent=l.reset;$('srvnote').textContent=l.srvnote;
+ $('foot').textContent=l.foot;$('report').textContent=l.report;$('home').textContent=l.home;$('appAduc').textContent=l.aduc;
+ $('appAduc').className=st.app==='aduc'?'on':'';$('appPs').className=st.app==='ps'?'on':'';
+ const vis=TK.filter(t=>!st.path||t.lv===st.path);
+ $('queue').innerHTML=vis.map(t=>{const d=st.solved[t.id];return `<button class="qi${t.id===st.sel?' sel':''}${d?' done':''}" data-t="${t.id}"><span class="qtop"><span>${t.id} · ${l.paths[t.lv]}</span><span class="tag ${d?'t-ok':'t-'+t.p}">${d?l.done:l[t.p]}</span></span><span class="qt">${esc(t[lang].t)}</span></button>`}).join('')+(vis.length&&vis.every(t=>st.solved[t.id])?`<div class="fb good">${l.allDone}</div>`:'');
+ const t=TK.find(k=>k.id===st.sel),x=t[lang],asg=st.asg[t.id];
+ const fbText={good:l.good+' '+x.ok,bad:l.bad,assign:l.needAssign,short:l.short,needPs:l.needPs}[st.fb];
+ $('ticket').innerHTML=`<div class="meta"><span class="tag">${t.id}</span><span class="tag t-${t.p}">${l.prio}: ${l[t.p]}</span><span class="tag">${l.level}: ${l.paths[t.lv]}</span>${t.ps?`<span class="tag t-ps">${l.psOnly}</span>`:''}${st.solved[t.id]?`<span class="tag t-ok">${l.done}</span>`:''}</div>
+ <h2>${esc(x.t)}</h2><div class="row small">${l.from}: ${esc(t.from)} · ${asg?`<span style="color:#86EFAC">${l.assigned}</span>`:`${l.unassigned} <button class="pri" id="asg">${l.assign}</button>`}</div>
+ <div class="body">${esc(x.b)}</div>
+ <details id="hint" ${st.hint&&st.hint[t.id]?'open':''}><summary>💡 ${l.hintT}</summary>${t.ps?'':`<h3 style="margin-top:8px">${l.gui}</h3><ol>${x.g.map(s=>`<li>${esc(s)}</li>`).join('')}</ol>`}<h3 style="margin-top:8px">${l.ps}</h3><ol>${x.p.map(s=>`<li><code>${esc(s)}</code></li>`).join('')}</ol></details>
+ <label for="notes">${l.notes}</label><textarea id="notes" placeholder="${esc(l.notesPh)}">${esc(st.notes[t.id]||'')}</textarea>
+ <div class="row"><label for="res">${l.res}</label><select id="res"><option value="resolved">${l.resolved}</option><option value="denied">${l.denied}</option></select><button class="pri" id="closeb">${l.close}</button></div>
+ ${fbText?`<div class="fb ${st.fb==='good'?'good':'badf'}" role="status">${esc(fbText)}</div>`:''}`;
+ if(st.app==='aduc'){
+  const us=Object.keys(st.ad).filter(u=>st.ou==='all'||st.ad[u].ou===st.ou),su=st.su&&st.ad[st.su]?st.su:null;
+  $('app').innerHTML=`<div class="aduc"><div class="bar"><button data-g="reset" ${su?'':'disabled'}>${l.resetPw}</button><button data-g="${su&&!st.ad[su].en?'enable':'disable'}" ${su?'':'disabled'}>${su&&!st.ad[su].en?l.enable:l.disable}</button><button data-g="group" ${su?'':'disabled'}>${l.addGrp}</button><button data-g="move" ${su?'':'disabled'}>${l.move}</button><button data-g="props" ${su?'':'disabled'}>${l.props}</button></div>
+  <div class="split"><div class="tree"><div class="small" style="color:#555;padding:4px 6px">lab.local</div><button data-ou="all" class="${st.ou==='all'?'on':''}">${l.allUsers}</button>${OUS.map(o=>`<button data-ou="${o}" class="${st.ou===o?'on':''}">📁 ${o}</button>`).join('')}</div>
+  <div class="list"><table><thead><tr><th>${l.name}</th><th>${l.type}</th><th>OU</th><th>${l.desc}</th></tr></thead><tbody>${us.map(u=>{const v=st.ad[u];return `<tr data-u="${u}" class="${u===su?'on':''}${v.en?'':' dis'}" tabindex="0"><td><span class="ico${v.en?'':' d'}"></span>${esc(v.n)}</td><td>${l.user}</td><td>${v.ou}</td><td>${v.lock?'🔒 ':''}${v.g.join(', ')}</td></tr>`}).join('')}</tbody></table></div></div></div>`;
+ } else {
+  $('app').innerHTML=`<div class="ps" id="psout">Windows PowerShell\nCopyright (C) Microsoft Corporation. All rights reserved.\nType help to see the commands for this lab.\n\n${st.ps.map(o=>`<span class="${o.c}">${esc(o.t)}</span>`).join('\n')}</div>
+  <div class="psin"><label for="psin">PS C:\\&gt;</label><input id="psin" autocomplete="off" spellcheck="false" aria-label="PowerShell command"></div>
+  <div class="cheat">${['help','Get-ADUser -Filter *','Search-ADAccount -LockedOut','Get-ADGroupMember "IT Admins"','cls'].map(c=>`<button data-c="${esc(c)}">${esc(c)}</button>`).join('')}</div>`;
+  const p=$('psout');p.scrollTop=p.scrollHeight;
+ }
+}
+let hi=-1,lastRow={u:'',t:0};
+document.addEventListener('click',e=>{
+ const m=document.querySelector('.ctx');if(m&&!e.target.closest('.ctx'))m.remove();
+ const tr=e.target.closest('tr[data-u]');if(tr){const u=tr.dataset.u,now=Date.now();if(lastRow.u===u&&now-lastRow.t<450){lastRow={u:'',t:0};openDlg('props',u);return}lastRow={u,t:now};st.su=u;draw();return}
+ const b=e.target.closest('button');if(!b)return;const l=L();
+ if(b.dataset.t){st.sel=b.dataset.t;st.fb=null;save();return draw()}
+ if(b.dataset.path!==undefined){st.path=+b.dataset.path;save();return draw()}
+ if(b.dataset.ou){st.ou=b.dataset.ou;st.su=null;return draw()}
+ if(b.dataset.c){$('psin').value=b.dataset.c;$('psin').focus();return}
+ if(b.dataset.tab){dlg.tab=b.dataset.tab;dlg.err='';return drawDlg()}
+ if(b.dataset.ctx){const u=b.dataset.u;b.closest('.ctx').remove();return guiAct(b.dataset.ctx,u)}
+ if(b.dataset.g){return guiAct(b.dataset.g,st.su)}
+ if(b.dataset.d){const d=b.dataset.d;if(d==='x'){dlg=null;return drawDlg()}if(d==='ok')return dlgOk(true);if(d==='apply')return dlgOk(false);
+  if(d==='addg'){dlg.adding=true;return drawDlg()}if(d==='addgo'){A.add(dlg.u,'gui',$('gsel2').value);dlg.adding=false;save();draw();return drawDlg()}
+  if(d==='rmg'){A.rm(dlg.u,'gui',dlg.sel);dlg.sel=null;save();draw();return drawDlg()}}
+ if(b.id==='en'||b.id==='fr'){st.lang=b.id;save();draw();return drawDlg()}
+ if(b.id==='appAduc'){st.app='aduc';save();return draw()}
+ if(b.id==='appPs'){st.app='ps';save();draw();return $('psin').focus()}
+ if(b.id==='asg'){st.asg[st.sel]=true;st.fb=null;save();return draw()}
+ if(b.id==='closeb')return closeTicket();
+ if(b.id==='reset'){const lang=st.lang;st=fresh();st.lang=lang;save();return draw()}
+});
+document.addEventListener('click',e=>{const g=e.target.closest('.mlist div[data-g]');if(g&&dlg){dlg.sel=g.dataset.g;drawDlg()}});
+function guiAct(k,u){const l=L();if(!u)return toast(l.selectUser);
+ if(k==='enable'||k==='disable'){A[k](u,'gui');st.fb=null;save();return draw()}openDlg(k,u)}
+document.addEventListener('contextmenu',e=>{const tr=e.target.closest('tr[data-u]');if(!tr)return;e.preventDefault();const u=tr.dataset.u,v=st.ad[u],l=L();st.su=u;draw();
+ const m=document.createElement('div');m.className='ctx';m.style.left=Math.min(e.clientX,innerWidth-220)+'px';m.style.top=Math.min(e.clientY,innerHeight-220)+'px';
+ m.innerHTML=[['reset',l.resetPw],[v.en?'disable':'enable',v.en?l.disable:l.enable],['group',l.addGrp],['move',l.move],['props',l.props]].map(([k,t])=>`<button data-ctx="${k}" data-u="${u}">${t}</button>`).join('');document.body.appendChild(m)});
+document.addEventListener('keydown',e=>{
+ if(e.target.id==='psin'){if(e.key==='Enter'){const v=e.target.value;hi=-1;runPs(v)}
+  if(e.key==='ArrowUp'&&st.psHist.length){hi=Math.min(hi+1,st.psHist.length-1);e.target.value=st.psHist[hi];e.preventDefault()}
+  if(e.key==='ArrowDown'){hi=Math.max(hi-1,-1);e.target.value=hi<0?'':st.psHist[hi];e.preventDefault()}}
+ if(e.key==='Escape'&&dlg){dlg=null;drawDlg()}
+ if(e.key==='Enter'&&e.target.matches('tr[data-u]')){st.su=e.target.dataset.u;draw()}
+});
+document.addEventListener('toggle',e=>{if(e.target.id==='hint'){st.hint=st.hint||{};st.hint[st.sel]=e.target.open;save()}},true);
+document.addEventListener('input',e=>{if(e.target.id==='notes'){st.notes[st.sel]=e.target.value;save()}});
+draw();
+}
+</script>
+</body>
+</html>
