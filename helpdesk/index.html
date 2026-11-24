@@ -81,10 +81,10 @@ select{min-height:40px;background:var(--bg);color:var(--ink);border:1px solid va
 .dlg input[type=password],.dlg select{background:#fff;color:#111;border:1px solid #AAA;min-height:32px;padding:0 6px;width:100%}
 .dlg label{font-weight:400;display:flex;gap:8px;align-items:center}
 .dlg .mlist{border:1px solid #CCC;min-height:80px;padding:4px}.dlg .mlist div{padding:3px 6px;cursor:pointer}.dlg .mlist .on{background:#CCE4F7}
-.ps{background:#012456;color:#EEEDF0;font:14px/1.45 'JetBrains Mono',Consolas,monospace;padding:10px;min-height:300px;max-height:420px;overflow:auto;white-space:pre-wrap;word-break:break-word}
+.ps{background:#012456;color:#EEEDF0;font:14px/1.45 'JetBrains Mono',Consolas,monospace;padding:10px;min-height:300px;max-height:420px;overflow:auto;white-space:pre;overflow-x:auto}@media(max-width:600px){.ps{font-size:12px}}
 .ps .err{color:#FF8A8A}.ps .cmd{color:#FDFD96}
 .psin{display:flex;align-items:center;gap:6px;background:#012456;padding:0 10px 10px;font:14px 'JetBrains Mono',monospace;color:#EEEDF0}
-.psin input{flex:1;background:#00183C;color:#fff;border:1px solid #2A4B7C;min-height:38px;padding:0 8px;font:14px 'JetBrains Mono',monospace}
+.psrun{background:#2F6FE4;color:#fff;border:0;border-radius:6px;min-height:38px;padding:0 14px;font:700 14px 'JetBrains Mono',monospace;cursor:pointer}.psin input{flex:1;min-width:0;background:#00183C;color:#fff;border:1px solid #2A4B7C;min-height:38px;padding:0 8px;font:14px 'JetBrains Mono',monospace}
 .cheat{display:flex;gap:6px;flex-wrap:wrap;background:#012456;padding:0 10px 10px}
 .cheat button{background:#0B3A75;border-color:#2A4B7C;color:#DDE9FF;min-height:32px;font:12px 'JetBrains Mono',monospace}
 footer{border-top:1px solid var(--line);color:var(--mute);font-size:13px}
@@ -234,7 +234,7 @@ function runOne(line,piped){
  }
 }
 function runPs(line){
- line=line.trim();if(!line)return;out('PS C:\\Users\\Administrator> '+line,'cmd');st.psHist.unshift(line);
+ line=line.replace(/[\u201C\u201D\u201E\u00AB\u00BB]/g,'"').replace(/[\u2018\u2019]/g,"'").replace(/[\u2013\u2014]/g,'-').replace(/\u00A0/g,' ').trim();if(!line)return;out('PS C:\\Users\\Administrator> '+line,'cmd');st.psHist.unshift(line);
  try{const parts=line.split('|').map(s=>s.trim());let piped=null;
   parts.forEach((p,i)=>{const r=runOne(p,i>0?piped:(parts.length>1?false:null));piped=Array.isArray(r)?r:null;if(i===0&&parts.length>1&&!Array.isArray(r))throw new Error('The first command did not return any objects to pipe.')})}
  catch(e){out(e.message,'err')}
@@ -298,7 +298,7 @@ function draw(){
   <div class="list"><table><thead><tr><th>${l.name}</th><th>${l.type}</th><th>OU</th><th>${l.desc}</th></tr></thead><tbody>${us.map(u=>{const v=st.ad[u];return `<tr data-u="${u}" class="${u===su?'on':''}${v.en?'':' dis'}" tabindex="0"><td><span class="ico${v.en?'':' d'}"></span>${esc(v.n)}</td><td>${l.user}</td><td>${v.ou}</td><td>${v.lock?'🔒 ':''}${v.g.join(', ')}</td></tr>`}).join('')}</tbody></table></div></div></div>`;
  } else {
   $('app').innerHTML=`<div class="ps" id="psout">Windows PowerShell\nCopyright (C) Microsoft Corporation. All rights reserved.\nType help to see the commands for this lab.\n\n${st.ps.map(o=>`<span class="${o.c}">${esc(o.t)}</span>`).join('\n')}</div>
-  <div class="psin"><label for="psin">PS C:\\&gt;</label><input id="psin" autocomplete="off" spellcheck="false" aria-label="PowerShell command"></div>
+  <form class="psin" id="psform"><label for="psin">PS C:\\&gt;</label><input id="psin" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" enterkeyhint="go" aria-label="PowerShell command"><button type="submit" class="psrun">▶ Run</button></form>
   <div class="cheat">${['help','Get-ADUser -Filter *','Search-ADAccount -LockedOut','Get-ADGroupMember "IT Admins"','cls'].map(c=>`<button data-c="${esc(c)}">${esc(c)}</button>`).join('')}</div>`;
   const p=$('psout');p.scrollTop=p.scrollHeight;
  }
@@ -332,12 +332,13 @@ document.addEventListener('contextmenu',e=>{const tr=e.target.closest('tr[data-u
  const m=document.createElement('div');m.className='ctx';m.style.left=Math.min(e.clientX,innerWidth-220)+'px';m.style.top=Math.min(e.clientY,innerHeight-220)+'px';
  m.innerHTML=[['reset',l.resetPw],[v.en?'disable':'enable',v.en?l.disable:l.enable],['group',l.addGrp],['move',l.move],['props',l.props]].map(([k,t])=>`<button data-ctx="${k}" data-u="${u}">${t}</button>`).join('');document.body.appendChild(m)});
 document.addEventListener('keydown',e=>{
- if(e.target.id==='psin'){if(e.key==='Enter'){const v=e.target.value;hi=-1;runPs(v)}
+ if(e.target.id==='psin'){
   if(e.key==='ArrowUp'&&st.psHist.length){hi=Math.min(hi+1,st.psHist.length-1);e.target.value=st.psHist[hi];e.preventDefault()}
   if(e.key==='ArrowDown'){hi=Math.max(hi-1,-1);e.target.value=hi<0?'':st.psHist[hi];e.preventDefault()}}
  if(e.key==='Escape'&&dlg){dlg=null;drawDlg()}
  if(e.key==='Enter'&&e.target.matches('tr[data-u]')){st.su=e.target.dataset.u;draw()}
 });
+document.addEventListener('submit',e=>{if(e.target.id==='psform'){e.preventDefault();const v=$('psin').value;hi=-1;runPs(v)}});
 document.addEventListener('toggle',e=>{if(e.target.id==='hint'){st.hint=st.hint||{};st.hint[st.sel]=e.target.open;save()}},true);
 document.addEventListener('input',e=>{if(e.target.id==='notes'){st.notes[st.sel]=e.target.value;save()}});
 draw();
