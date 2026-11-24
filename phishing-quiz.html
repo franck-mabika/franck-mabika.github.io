@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Hard Phishing Quiz · Franck Mabika</title>
+<meta name="description" content="15 realistic phishing tests. Can you spot them all?">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--navy:#0a1630;--ink:#000;--muted:#444;--line:#d9dde5;--red:#d62839;--green:#1f8a4c;--yellow:#ffd23f;--bg:#f4f6fa}
+body{font-family:Poppins,system-ui,sans-serif;background:var(--bg);color:var(--ink);line-height:1.5}
+header{background:var(--navy);color:#fff;padding:18px 20px}
+.hwrap{max-width:760px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px}
+.brand{font-weight:800;font-size:18px;color:#fff;text-decoration:none}.brand span{color:var(--yellow)}
+.lang{display:flex;border:2px solid #fff;border-radius:30px;overflow:hidden}
+.lang button{background:none;border:0;color:#fff;font:600 14px Poppins;padding:6px 14px;cursor:pointer}
+.lang button.on{background:#fff;color:var(--navy)}
+main{max-width:760px;margin:0 auto;padding:24px 16px 60px}
+.card{background:#fff;border:2px solid var(--ink);border-radius:18px;padding:24px}
+h1{font-size:34px;line-height:1.1;font-weight:800}
+.tag{display:inline-block;background:var(--red);color:#fff;font-weight:700;font-size:13px;padding:4px 12px;border-radius:20px;letter-spacing:1px}
+.lead{margin-top:12px;font-size:17px;color:var(--muted)}
+.rules{margin:18px 0 0 20px;color:var(--ink)}.rules li{margin:4px 0}
+.btn{display:inline-block;background:var(--navy);color:#fff;border:0;border-radius:12px;font:700 17px Poppins;padding:14px 26px;cursor:pointer;margin-top:22px;text-decoration:none}
+.btn:hover{opacity:.9}
+.btn.alt{background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.top{display:flex;justify-content:space-between;align-items:center;font-weight:600;font-size:14px;color:var(--muted);margin-bottom:10px}
+.bar{height:8px;background:var(--line);border-radius:8px;overflow:hidden;margin-bottom:18px}.bar i{display:block;height:100%;background:var(--navy);transition:width .3s}
+.qtitle{font-size:20px;font-weight:800;margin-bottom:6px}
+.ctx{color:var(--muted);font-size:15px;margin-bottom:14px}
+/* mocks */
+.mail{border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14px}
+.mail .hd{background:#f7f8fb;padding:12px 14px;border-bottom:1px solid var(--line)}
+.mail .hd div{margin:2px 0;word-break:break-word}.mail .hd b{display:inline-block;min-width:74px;color:var(--muted);font-weight:600}
+.mail .sub{font-weight:800;font-size:16px;margin-top:6px}
+.mail .bd{padding:16px 14px}
+.mail .bd p{margin-bottom:10px}
+.fake{display:inline-block;background:#1a56db;color:#fff;padding:9px 18px;border-radius:6px;font-weight:600;cursor:help;position:relative}
+.hover{display:block;margin-top:8px;font:12px "JetBrains Mono",monospace;background:#222;color:#fff;padding:6px 10px;border-radius:6px;word-break:break-all}
+.attach{display:inline-flex;gap:8px;align-items:center;border:1px solid var(--line);border-radius:8px;padding:8px 12px;margin-top:6px;font-weight:600}
+.phone{max-width:340px;margin:0 auto;background:#111;border-radius:28px;padding:16px 14px}
+.phone .who{color:#bbb;text-align:center;font-size:12px;margin-bottom:10px}
+.sms{background:#2c2c2e;color:#fff;border-radius:18px 18px 18px 4px;padding:12px 14px;font-size:15px}
+.sms u{color:#6fb3ff}
+.push{background:rgba(255,255,255,.95);border-radius:16px;padding:12px 14px;font-size:14px;margin-top:8px}
+.push .app{font-size:12px;color:#555;font-weight:600;display:flex;justify-content:space-between}
+.push .acts{display:flex;gap:8px;margin-top:10px}.push .acts span{flex:1;text-align:center;border-radius:8px;padding:6px;font-weight:700;background:#e9e9ee}
+.browser{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.urlbar{background:#eef0f4;padding:10px 12px;display:flex;align-items:center;gap:8px;font:14px "JetBrains Mono",monospace;word-break:break-all}
+.lock{font-family:Poppins}
+.page{padding:22px;text-align:center}
+.consent{max-width:380px;margin:0 auto;text-align:left;border:1px solid var(--line);border-radius:12px;padding:18px}
+.consent ul{margin:10px 0 0 18px}.consent li{margin:4px 0}
+.poster{max-width:300px;margin:0 auto;background:var(--yellow);border-radius:14px;padding:18px;text-align:center;font-weight:800}
+.qr{width:120px;height:120px;margin:12px auto;background:
+ repeating-linear-gradient(90deg,#000 0 10px,#fff 10px 20px),#fff;-webkit-mask:linear-gradient(#000 0 0);position:relative;border:8px solid #fff;outline:2px solid #000}
+.qr:after{content:"";position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent 0 12px,rgba(255,255,255,.85) 12px 22px)}
+.sticker{display:inline-block;background:#fff;border:1px dashed #000;font-size:12px;padding:2px 6px;transform:rotate(-3deg);margin-top:6px}
+.mono{font-family:"JetBrains Mono",monospace;font-size:13px}
+/* answer */
+.choices{display:flex;gap:12px;margin-top:20px}
+.choices button{flex:1;font:800 18px Poppins;padding:16px;border-radius:14px;cursor:pointer;border:3px solid var(--ink);background:#fff;color:var(--ink)}
+.choices button:hover{background:#f0f0f0}
+.choices button:disabled{cursor:default;opacity:.55}
+.choices button.pick{opacity:1;background:var(--ink);color:#fff}
+.verdict{margin-top:18px;border-radius:14px;padding:18px;border:3px solid}
+.verdict.ok{border-color:var(--green);background:#eef8f2}.verdict.no{border-color:var(--red);background:#fdf0f1}
+.verdict h3{font-size:20px;font-weight:800}
+.verdict .ans{font-weight:700;margin-top:4px}
+.verdict ul{margin:10px 0 0 20px}.verdict li{margin:5px 0}
+.verdict .lesson{margin-top:10px;font-weight:600}
+.big{font-size:64px;font-weight:800;line-height:1}
+.rank{font-size:22px;font-weight:800;margin-top:6px}
+.review{margin-top:18px}.review div{padding:8px 0;border-bottom:1px solid var(--line);font-size:15px}
+footer{text-align:center;color:var(--muted);font-size:14px;padding:20px}
+footer a{color:var(--ink)}
+.modes{display:grid;gap:12px;margin-top:22px}
+.mode{text-align:left;background:var(--navy);color:#fff;border:0;border-radius:14px;padding:16px 18px;cursor:pointer;font-family:Poppins}
+.mode b{display:block;font-size:18px;font-weight:800}.mode span{font-size:14px;opacity:.85}
+.mode:nth-child(2){background:#fff;color:var(--navy);border:2px solid var(--navy)}
+.pairs{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.side{border:3px solid var(--line);border-radius:16px;padding:10px;display:flex;flex-direction:column;gap:10px}
+.side .lbl{font-weight:800;font-size:20px}
+.side .pickbtn{font:800 16px Poppins;padding:12px;border-radius:12px;border:3px solid var(--ink);background:#fff;cursor:pointer;margin-top:auto}
+.side .pickbtn:disabled{cursor:default}
+.side.isfake{border-color:var(--red)}.side.isreal{border-color:var(--green)}
+.side .badge{font-weight:800;font-size:14px;padding:4px 10px;border-radius:20px;align-self:flex-start;color:#fff}
+.side.isfake .badge{background:var(--red)}.side.isreal .badge{background:var(--green)}
+.nav{display:flex;justify-content:space-between;gap:10px;margin-top:6px}
+.nav .btn{margin-top:16px}
+@media(max-width:640px){.pairs{grid-template-columns:1fr}}
+.hidden{display:none}
+@media(max-width:520px){h1{font-size:28px}.choices button{font-size:16px;padding:14px}}
+</style>
+</head>
+<body>
+<header><div class="hwrap">
+ <a class="brand" href="/">Franck <span>Mabika</span></a>
+ <div class="lang"><button id="bEN" onclick="setLang('en')">EN</button><button id="bFR" onclick="setLang('fr')">FR</button></div>
+</div></header>
+
+<main>
+ <section id="start" class="card">
+  <span class="tag" data-t="tag"></span>
+  <h1 style="margin-top:12px" data-t="title"></h1>
+  <p class="lead" data-t="lead"></p>
+  <ul class="rules" id="rules"></ul>
+  <div class="modes">
+   <button class="mode" onclick="begin('pair')"><b data-t="m2"></b><span data-t="m2d"></span></button>
+   <button class="mode" onclick="begin('single')"><b data-t="m1"></b><span data-t="m1d"></span></button>
+  </div>
+ </section>
+
+ <section id="quiz" class="card hidden">
+  <div class="top"><span id="count"></span><span id="scoreTxt"></span></div>
+  <div class="bar"><i id="prog"></i></div>
+  <div class="qtitle" id="qtitle"></div>
+  <div class="ctx" id="ctx"></div>
+  <div id="mock"></div>
+  <div class="choices" id="single"><button id="cP" onclick="answer('phish')"></button><button id="cL" onclick="answer('legit')"></button></div>
+  <div id="verdict"></div>
+  <div class="nav"><button class="btn alt" id="backBtn" onclick="back()"></button><button class="btn hidden" id="nextBtn" onclick="next()"></button></div>
+ </section>
+
+ <section id="end" class="card hidden">
+  <span class="tag" data-t="result"></span>
+  <div class="big" id="final" style="margin-top:14px"></div>
+  <div class="rank" id="rank"></div>
+  <p class="lead" id="rankTxt"></p>
+  <div class="review" id="review"></div>
+  <button class="btn" onclick="home()" data-t="again"></button>
+  <a class="btn alt" href="/helpdesk/" data-t="sim"></a>
+ </section>
+</main>
+
+
+<footer><span data-t="foot"></span> · <a href="/">franck-mabika.github.io</a></footer>
+
+<script>
+const UI={
+en:{tag:"🎣 PHISHING TEST · HARD",title:"Could you get phished?",lead:"Real emails and fake emails that look almost the same. Can you tell them apart? Most people can't.",
+rules:["Read everything: the sender, the link, the timing, what they want.","Pick the fake one, or decide if a message is phishing or legit.","After each answer you see the red flags, so you learn as you go."],
+start:"Start the test",m2:"🎭 Spot the fake (8 pairs)",m2d:"Two messages side by side. One is real, one is an attack. Pick the fake.",m1:"🎣 Phishing or legit? (15)",m1d:"One message at a time. Decide if it's an attack.",which:"Which one is FAKE?",thisFake:"🎣 This one is fake",fakeB:"FAKE",realB:"REAL",fakeWas:"The fake one was",back:"← Back",home:"← Menu",phish:"🎣 Phishing",legit:"✅ Legit",next:"Next →",finish:"See my score →",q:"Question",of:"of",score:"Score",
+ok:"Correct!",no:"Not quite.",was:"Answer:",isP:"PHISHING",isL:"LEGIT",why:"Why:",lesson:"Lesson:",result:"YOUR RESULT",again:"Play again",sim:"Try my Help Desk Simulator",
+foot:"Training quiz made by Franck Mabika. All companies and links here are fictional.",
+ranks:[[15,"🛡️ Untouchable","Perfect score. Attackers would need a better plan for you."],[12,"🔐 SOC-ready","You see what most people miss. Review the ones you got wrong."],[8,"👀 Sharp, but…","You catch the obvious ones. The clever attacks still got you a few times."],[0,"🎣 Hooked","Don't worry, that's why this test exists. Read the red flags and try again."]]},
+fr:{tag:"🎣 TEST HAMEÇONNAGE · DIFFICILE",title:"Te ferais-tu hameçonner ?",lead:"De vrais courriels et de faux courriels presque identiques. Sauras-tu les distinguer ? La plupart des gens n'y arrivent pas.",
+rules:["Lis tout : l'expéditeur, le lien, le moment, ce qu'on te demande.","Trouve le faux, ou décide si un message est de l'hameçonnage ou légitime.","Après chaque réponse, tu vois les signaux d'alerte, pour apprendre au fur et à mesure."],
+start:"Commencer le test",m2:"🎭 Trouve le faux (8 paires)",m2d:"Deux messages côte à côte. Un est vrai, l'autre est une attaque. Choisis le faux.",m1:"🎣 Hameçonnage ou légitime ? (15)",m1d:"Un message à la fois. Décide si c'est une attaque.",which:"Lequel est FAUX ?",thisFake:"🎣 Celui-ci est faux",fakeB:"FAUX",realB:"VRAI",fakeWas:"Le faux était",back:"← Retour",home:"← Menu",phish:"🎣 Hameçonnage",legit:"✅ Légitime",next:"Suivant →",finish:"Voir mon score →",q:"Question",of:"sur",score:"Score",
+ok:"Bonne réponse !",no:"Pas tout à fait.",was:"Réponse :",isP:"HAMEÇONNAGE",isL:"LÉGITIME",why:"Pourquoi :",lesson:"Leçon :",result:"TON RÉSULTAT",again:"Rejouer",sim:"Essaie mon simulateur Help Desk",
+foot:"Quiz de formation créé par Franck Mabika. Toutes les entreprises et tous les liens ici sont fictifs.",
+ranks:[[15,"🛡️ Intouchable","Score parfait. Les attaquants auraient besoin d'un meilleur plan."],[12,"🔐 Prêt pour le SOC","Tu vois ce que la plupart ratent. Revois celles que tu as manquées."],[8,"👀 Attentif, mais…","Tu repères les évidentes. Les attaques plus rusées t'ont eu quelques fois."],[0,"🎣 Hameçonné","Pas de stress, ce test existe pour ça. Lis les signaux d'alerte et réessaie."]]}
+};
+
+const esc=s=>s;
+const mail=(f,rt,to,sub,body)=>`<div class="mail"><div class="hd"><div><b>From</b>${f}</div>${rt?`<div><b>Reply-To</b>${rt}</div>`:""}<div><b>To</b>${to}</div><div class="sub">${sub}</div></div><div class="bd">${body}</div></div>`;
+const sms=(who,txt)=>`<div class="phone"><div class="who">${who}</div><div class="sms">${txt}</div></div>`;
+const browser=(url,lock,inner)=>`<div class="browser"><div class="urlbar"><span class="lock">${lock?"🔒":"⚠️"}</span>${url}</div><div class="page">${inner}</div></div>`;
+
+const Q=[
+{a:"phish",
+en:{t:"Bank security alert",c:"You bank with Northpeak Bank. You hover over the button before clicking.",
+m:mail("Northpeak Bank Security &lt;alerts@northpeak.com&gt;","support@northpeak-secure.help","you@email.com","Unusual sign-in blocked on your account","<p>We blocked a sign-in attempt from a new device. To keep your account active, please confirm your identity within 12 hours.</p><span class='fake'>Review activity</span><span class='hover'>https://northpeak.com.account-verify.co/login</span>"),
+why:["The real domain is the part right before the first single slash: <b>account-verify.co</b>. \"northpeak.com\" is just a subdomain the attacker made.","The Reply-To goes to a different domain than the sender.","A 12-hour deadline is there to rush you."],lesson:"Read a link from right to left, starting from the first /. The last two parts before it are the real owner."},
+fr:{t:"Alerte de sécurité bancaire",c:"Tu es client de la Banque Northpeak. Tu survoles le bouton avant de cliquer.",
+m:mail("Sécurité Banque Northpeak &lt;alerts@northpeak.com&gt;","support@northpeak-secure.help","toi@email.com","Connexion inhabituelle bloquée sur votre compte","<p>Nous avons bloqué une tentative de connexion depuis un nouvel appareil. Pour garder votre compte actif, confirmez votre identité d'ici 12 heures.</p><span class='fake'>Vérifier l'activité</span><span class='hover'>https://northpeak.com.account-verify.co/login</span>"),
+why:["Le vrai domaine est la partie juste avant la première barre oblique : <b>account-verify.co</b>. « northpeak.com » n'est qu'un sous-domaine créé par l'attaquant.","L'adresse de réponse (Reply-To) est sur un autre domaine que l'expéditeur.","Un délai de 12 heures sert à te presser."],lesson:"Lis un lien de droite à gauche à partir de la première /. Les deux dernières parties avant elle désignent le vrai propriétaire."}},
+
+{a:"legit",
+en:{t:"Password expiry notice",c:"Your company really does make passwords expire every 90 days. You changed yours about 3 months ago.",
+m:mail("IT Service Desk &lt;servicedesk@yourcompany.com&gt;","","you@yourcompany.com","Reminder: your password expires in 3 days","<p>Hi,</p><p>Your network password expires in 3 days. Please change it the usual way: press Ctrl+Alt+Del on your work computer and choose <b>Change a password</b>.</p><p>We will never send you a link to change your password or ask for it by email or phone.</p><p>IT Service Desk · ext. 4400</p>"),
+why:["No link, no attachment, nothing to type into an email.","It sends you to the normal way you already know (Ctrl+Alt+Del), not to a website.","The timing matches the real 90-day policy, and it reminds you they'll never ask for your password."],lesson:"Real IT messages send you to a path you already know. Fake ones bring their own link."},
+fr:{t:"Avis d'expiration du mot de passe",c:"Ton entreprise fait vraiment expirer les mots de passe tous les 90 jours. Tu as changé le tien il y a environ 3 mois.",
+m:mail("Centre de services TI &lt;servicedesk@yourcompany.com&gt;","","toi@yourcompany.com","Rappel : votre mot de passe expire dans 3 jours","<p>Bonjour,</p><p>Votre mot de passe réseau expire dans 3 jours. Changez-le de la façon habituelle : appuyez sur Ctrl+Alt+Suppr sur votre ordinateur de travail et choisissez <b>Modifier un mot de passe</b>.</p><p>Nous ne vous enverrons jamais de lien pour changer votre mot de passe et ne vous le demanderons jamais par courriel ou téléphone.</p><p>Centre de services TI · poste 4400</p>"),
+why:["Aucun lien, aucune pièce jointe, rien à taper dans un courriel.","Il t'envoie vers la méthode habituelle que tu connais déjà (Ctrl+Alt+Suppr), pas vers un site.","Le moment correspond à la vraie politique de 90 jours, et il rappelle qu'on ne te demandera jamais ton mot de passe."],lesson:"Les vrais messages TI t'envoient vers un chemin que tu connais déjà. Les faux apportent leur propre lien."}},
+
+{a:"phish",
+en:{t:"Delivery text",c:"You did order something online this week.",
+m:sms("+1 (647) 555-0193","Shiply: Your parcel #CA88213 is on hold at our depot due to an unpaid customs fee ($2.49). Pay within 24h to avoid return: <u>shiply.ca-redelivery.com/pay</u>"),
+why:["The domain is <b>ca-redelivery.com</b>, not shiply.ca. The dash changes everything.","A normal phone number, not a company short code.","A tiny fee is the trick: the real goal is your card number."],lesson:"Attackers time these for when you're waiting for a package. Track it in the app or the store's site instead."},
+fr:{t:"Texto de livraison",c:"Tu as vraiment commandé quelque chose en ligne cette semaine.",
+m:sms("+1 (647) 555-0193","Shiply : Votre colis #CA88213 est retenu à notre entrepôt pour des frais de douane impayés (2,49 $). Payez sous 24 h pour éviter le retour : <u>shiply.ca-redelivery.com/pay</u>"),
+why:["Le domaine est <b>ca-redelivery.com</b>, pas shiply.ca. Le tiret change tout.","Un numéro de téléphone ordinaire, pas un code court d'entreprise.","Les petits frais sont le piège : le vrai but est ton numéro de carte."],lesson:"Les attaquants envoient ça quand tu attends un colis. Suis-le plutôt dans l'appli ou sur le site du magasin."}},
+
+{a:"phish",
+en:{t:"Payment login page",c:"You clicked a link in a receipt email. This page opened. Look very closely at the address.",
+m:browser("https://www.payfIow.com/signin",true,"<div style='font-weight:800;font-size:22px'>PayFlow</div><div style='margin-top:10px;color:#444'>Sign in to see your receipt</div><div style='margin:12px auto;max-width:240px;border:1px solid #ccc;border-radius:8px;padding:8px;text-align:left;color:#888'>Email</div><div style='margin:0 auto;max-width:240px;border:1px solid #ccc;border-radius:8px;padding:8px;text-align:left;color:#888'>Password</div>"),
+why:["\"payfIow\" uses a capital <b>I</b> instead of a lowercase <b>l</b>. In many fonts they look the same.","The 🔒 padlock only means the connection is encrypted. Attackers get padlocks for free.","It opened from an email link, and it's asking for your password."],lesson:"The padlock doesn't mean safe. Type the address yourself or use your bookmark."},
+fr:{t:"Page de connexion de paiement",c:"Tu as cliqué sur un lien dans un courriel de reçu. Cette page s'est ouverte. Regarde l'adresse de très près.",
+m:browser("https://www.payfIow.com/signin",true,"<div style='font-weight:800;font-size:22px'>PayFlow</div><div style='margin-top:10px;color:#444'>Connectez-vous pour voir votre reçu</div><div style='margin:12px auto;max-width:240px;border:1px solid #ccc;border-radius:8px;padding:8px;text-align:left;color:#888'>Courriel</div><div style='margin:0 auto;max-width:240px;border:1px solid #ccc;border-radius:8px;padding:8px;text-align:left;color:#888'>Mot de passe</div>"),
+why:["« payfIow » utilise un <b>I</b> majuscule au lieu d'un <b>l</b> minuscule. Dans beaucoup de polices, ils sont identiques.","Le cadenas 🔒 veut seulement dire que la connexion est chiffrée. Les attaquants l'obtiennent gratuitement.","La page vient d'un lien dans un courriel et demande ton mot de passe."],lesson:"Le cadenas ne veut pas dire sécuritaire. Tape l'adresse toi-même ou utilise ton favori."}},
+
+{a:"phish",
+en:{t:"3:12 AM sign-in request",c:"You're asleep. Your phone wakes you up. It's the 6th request in 10 minutes.",
+m:`<div class="phone"><div class="who">3:12 AM</div><div class="push"><div class="app"><span>🔐 CloudDesk Authenticator</span><span>now</span></div><b>Approve sign-in?</b><br>CloudDesk · Lagos, Nigeria · Chrome on Windows<div class="acts"><span>Deny</span><span>Approve</span></div></div></div>`,
+why:["You didn't try to sign in. Someone already has your password.","Many requests in a row is called <b>MFA fatigue</b>: they hope you'll tap Approve just to make it stop.","Location and time don't match you."],lesson:"Deny, then change your password right away and tell IT. One wrong tap gives them full access."},
+fr:{t:"Demande de connexion à 3 h 12",c:"Tu dors. Ton téléphone te réveille. C'est la 6e demande en 10 minutes.",
+m:`<div class="phone"><div class="who">3 h 12</div><div class="push"><div class="app"><span>🔐 CloudDesk Authenticator</span><span>maintenant</span></div><b>Approuver la connexion ?</b><br>CloudDesk · Lagos, Nigeria · Chrome sur Windows<div class="acts"><span>Refuser</span><span>Approuver</span></div></div></div>`,
+why:["Tu n'as pas essayé de te connecter. Quelqu'un a déjà ton mot de passe.","Plusieurs demandes d'affilée, c'est la <b>fatigue MFA</b> : ils espèrent que tu appuies sur Approuver pour que ça s'arrête.","Le lieu et l'heure ne correspondent pas à toi."],lesson:"Refuse, change ton mot de passe tout de suite et avertis les TI. Un seul mauvais clic leur donne tout l'accès."}},
+
+{a:"phish",
+en:{t:"\"Open with Docs Viewer\"",c:"A coworker's account shared a file with you. When you open it, this screen appears. It doesn't ask for your password.",
+m:`<div class="consent"><div style="font-weight:800">Docs Viewer Pro</div><div style="color:#444;font-size:14px">wants to access your CloudDesk account</div><div style="margin-top:10px;font-weight:600">This will allow Docs Viewer Pro to:</div><ul><li>Read, send and delete all your email</li><li>See and download all your files</li><li>Access your contacts</li><li>Keep access when you're not using it</li></ul><div class="choices" style="margin-top:14px"><span class="fake" style="background:#ccc;color:#000">Cancel</span> <span class="fake">Allow</span></div></div>`,
+why:["This is <b>consent phishing</b>: no password needed. If you click Allow, the app gets your mailbox directly.","A file viewer has no reason to send and delete your email.","\"Keep access when you're not using it\" means it stays even after you change your password."],lesson:"Read what an app asks for. Too much permission for a simple job = refuse."},
+fr:{t:"« Ouvrir avec Docs Viewer »",c:"Le compte d'un collègue t'a partagé un fichier. En l'ouvrant, cet écran apparaît. Il ne demande pas ton mot de passe.",
+m:`<div class="consent"><div style="font-weight:800">Docs Viewer Pro</div><div style="color:#444;font-size:14px">veut accéder à votre compte CloudDesk</div><div style="margin-top:10px;font-weight:600">Cela permettra à Docs Viewer Pro de :</div><ul><li>Lire, envoyer et supprimer tous vos courriels</li><li>Voir et télécharger tous vos fichiers</li><li>Accéder à vos contacts</li><li>Garder l'accès quand vous ne l'utilisez pas</li></ul><div class="choices" style="margin-top:14px"><span class="fake" style="background:#ccc;color:#000">Annuler</span> <span class="fake">Autoriser</span></div></div>`,
+why:["C'est de l'<b>hameçonnage par consentement</b> : pas besoin de mot de passe. Si tu cliques Autoriser, l'appli a directement ta boîte courriel.","Une visionneuse de fichiers n'a aucune raison d'envoyer ou supprimer tes courriels.","« Garder l'accès » veut dire que ça reste même si tu changes ton mot de passe."],lesson:"Lis ce qu'une appli demande. Trop de permissions pour une tâche simple = refuse."}},
+
+{a:"phish",
+en:{t:"Quick favor from the boss",c:"Daniel Roy really is your CEO. It's Friday, 4:50 PM.",
+m:mail("Daniel Roy (CEO) &lt;daniel.roy.office@gmail.com&gt;","","you@yourcompany.com","Are you available?","<p>Are you at your desk? I'm in a meeting and can't talk. I need a quick favor for a client gift, keep it between us for now.</p><p>Sent from my iPhone</p>"),
+why:["The name is real, but the address is a <b>Gmail</b> account, not the company domain.","\"Can't talk\" and \"keep it between us\" stop you from checking.","Late Friday, when people want to go home and act fast. The next message usually asks for gift cards."],lesson:"Check the address, not the name. Confirm through another channel (call or Teams) using contact info you already have."},
+fr:{t:"Un petit service du patron",c:"Daniel Roy est vraiment ton PDG. C'est vendredi, 16 h 50.",
+m:mail("Daniel Roy (PDG) &lt;daniel.roy.office@gmail.com&gt;","","toi@yourcompany.com","Es-tu disponible ?","<p>Es-tu à ton bureau ? Je suis en réunion et je ne peux pas parler. J'ai besoin d'un petit service pour un cadeau client, garde ça entre nous pour l'instant.</p><p>Envoyé de mon iPhone</p>"),
+why:["Le nom est vrai, mais l'adresse est un compte <b>Gmail</b>, pas le domaine de l'entreprise.","« Je ne peux pas parler » et « garde ça entre nous » t'empêchent de vérifier.","Vendredi en fin de journée, quand on veut partir et agir vite. Le message suivant demande souvent des cartes-cadeaux."],lesson:"Vérifie l'adresse, pas le nom. Confirme par un autre moyen (appel ou Teams) avec des coordonnées que tu as déjà."}},
+
+{a:"legit",
+en:{t:"New sign-in notice",c:"You just signed in to CloudDesk on your new laptop at home in Montreal, 2 minutes ago.",
+m:mail("CloudDesk &lt;no-reply@clouddesk.com&gt;","","you@email.com","New sign-in to your CloudDesk account","<p>We noticed a new sign-in to your account.</p><p><b>Windows · Chrome · Montreal, QC, Canada</b><br>Today at 1:04 PM</p><p>If this was you, you don't need to do anything. If not, open the CloudDesk app and go to <b>Settings → Security</b>.</p>"),
+why:["It matches exactly what you just did: same device, city and time.","It asks you to do nothing if it was you.","No link: it tells you to go to the app yourself."],lesson:"Context is everything. The same email out of nowhere would be a reason to check, not to click."},
+fr:{t:"Avis de nouvelle connexion",c:"Tu viens de te connecter à CloudDesk sur ton nouveau portable chez toi à Montréal, il y a 2 minutes.",
+m:mail("CloudDesk &lt;no-reply@clouddesk.com&gt;","","toi@email.com","Nouvelle connexion à votre compte CloudDesk","<p>Nous avons remarqué une nouvelle connexion à votre compte.</p><p><b>Windows · Chrome · Montréal, QC, Canada</b><br>Aujourd'hui à 13 h 04</p><p>Si c'était vous, vous n'avez rien à faire. Sinon, ouvrez l'appli CloudDesk et allez dans <b>Paramètres → Sécurité</b>.</p>"),
+why:["Ça correspond exactement à ce que tu viens de faire : même appareil, ville et heure.","On ne te demande rien si c'était toi.","Aucun lien : on te dit d'aller toi-même dans l'appli."],lesson:"Le contexte est tout. Le même courriel sorti de nulle part serait une raison de vérifier, pas de cliquer."}},
+
+{a:"phish",
+en:{t:"Supplier changed banks",c:"This is a real thread with a real supplier you pay every month. The address is exactly right.",
+m:mail("Sarah Kim, Accounts &lt;s.kim@brightline-supply.com&gt;","","you@yourcompany.com","RE: Invoice #4471 - November","<p>Hi,</p><p>Quick update before Friday's payment: we've moved to a new bank because of an audit. Please use the new details attached for invoice #4471 and all future payments. The old account will be closed this week.</p><p>Thanks, Sarah</p><span class='attach'>📄 New_Banking_Details.pdf</span>"),
+why:["Right address, real thread: the supplier's mailbox was probably <b>hacked</b> (Business Email Compromise).","A bank change right before a payment, with a deadline, is the #1 sign of invoice fraud.","Nothing technical looks wrong, so only a phone check can catch it."],lesson:"Any change of bank details = call the supplier using the number you already have on file, never the one in the email."},
+fr:{t:"Le fournisseur a changé de banque",c:"C'est un vrai fil de discussion avec un vrai fournisseur que tu paies chaque mois. L'adresse est exactement la bonne.",
+m:mail("Sarah Kim, Comptabilité &lt;s.kim@brightline-supply.com&gt;","","toi@yourcompany.com","RE : Facture #4471 - novembre","<p>Bonjour,</p><p>Petite mise à jour avant le paiement de vendredi : nous avons changé de banque à cause d'un audit. Merci d'utiliser les nouvelles coordonnées jointes pour la facture #4471 et tous les paiements futurs. L'ancien compte sera fermé cette semaine.</p><p>Merci, Sarah</p><span class='attach'>📄 Nouvelles_Coordonnees_Bancaires.pdf</span>"),
+why:["Bonne adresse, vrai fil : la boîte courriel du fournisseur a probablement été <b>piratée</b> (compromission de courriel d'affaires).","Un changement de banque juste avant un paiement, avec une échéance, est le signe n° 1 de fraude à la facture.","Rien de technique n'a l'air faux, donc seul un appel peut le détecter."],lesson:"Tout changement de coordonnées bancaires = appelle le fournisseur au numéro que tu as déjà au dossier, jamais celui du courriel."}},
+
+{a:"phish",
+en:{t:"Parking QR code",c:"This sign is on a parking pole downtown. Something is stuck on it.",
+m:`<div class="poster">🅿️ PAY PARKING HERE<div class="qr"></div><div style="font-weight:600;font-size:14px">Scan to pay by card</div><div class="sticker mono">→ parkpay-mtl.co/zone4</div></div>`,
+why:["The QR code is a <b>sticker</b> placed over the real one. This is called <b>quishing</b>.","The link goes to <b>parkpay-mtl.co</b>, not the city's official parking app or site.","QR codes hide the link, so people pay without checking."],lesson:"For parking and payments, use the official app you installed yourself. Check the link before you pay."},
+fr:{t:"Code QR de stationnement",c:"Cette affiche est sur un poteau de stationnement au centre-ville. Quelque chose est collé dessus.",
+m:`<div class="poster">🅿️ PAYEZ VOTRE STATIONNEMENT ICI<div class="qr"></div><div style="font-weight:600;font-size:14px">Scannez pour payer par carte</div><div class="sticker mono">→ parkpay-mtl.co/zone4</div></div>`,
+why:["Le code QR est un <b>autocollant</b> posé par-dessus le vrai. Ça s'appelle le <b>quishing</b>.","Le lien mène à <b>parkpay-mtl.co</b>, pas à l'appli ou au site officiel de stationnement de la ville.","Les codes QR cachent le lien, donc les gens paient sans vérifier."],lesson:"Pour le stationnement et les paiements, utilise l'appli officielle que tu as installée toi-même. Vérifie le lien avant de payer."}},
+
+{a:"legit",
+en:{t:"Verification code",c:"You're signing in to your bank app right now and it said \"We sent you a code\".",
+m:sms("72838","Northpeak: Your verification code is 482913. It expires in 5 minutes. Never share this code. Northpeak will never call or text you to ask for it."),
+why:["You asked for it: it arrived right when you were signing in.","It comes from a <b>short code</b>, not a random number.","No link, and it tells you never to share it."],lesson:"A code you asked for is fine. A code you didn't ask for, or someone calling to ask for it, is an attack."},
+fr:{t:"Code de vérification",c:"Tu es en train de te connecter à l'appli de ta banque et elle a dit « Nous vous avons envoyé un code ».",
+m:sms("72838","Northpeak : Votre code de vérification est 482913. Il expire dans 5 minutes. Ne le partagez jamais. Northpeak ne vous appellera ni ne vous écrira jamais pour le demander."),
+why:["Tu l'as demandé : il est arrivé pendant ta connexion.","Il vient d'un <b>code court</b>, pas d'un numéro au hasard.","Aucun lien, et il te dit de ne jamais le partager."],lesson:"Un code que tu as demandé, c'est correct. Un code que tu n'as pas demandé, ou quelqu'un qui t'appelle pour l'avoir, c'est une attaque."}},
+
+{a:"phish",
+en:{t:"Perfect-looking address",c:"You clicked a link in a message. The address bar shows this. Then you copy the link into a text app and it turns into something else.",
+m:browser("https://clouddеsk.com/login",true,"<div style='font-weight:800;font-size:22px'>CloudDesk</div><div style='margin-top:8px;color:#444'>Your session expired. Sign in again.</div><div class='mono' style='margin-top:14px;background:#fff3cd;padding:8px;border-radius:6px'>Pasted link: https://xn--clouddsk-h8g.com/login</div>"),
+why:["The \"е\" in clouddеsk is a <b>Cyrillic letter</b> that looks exactly like a Latin e. This is a <b>homograph attack</b>.","The real form of the address (punycode) starts with <b>xn--</b>, which shows it's a different domain.","\"Your session expired\" is a classic reason to make you type your password."],lesson:"You can't always see the trick with your eyes. Go to important sites from your bookmarks or a password manager, which won't autofill on a fake domain."},
+fr:{t:"Adresse parfaite en apparence",c:"Tu as cliqué sur un lien dans un message. La barre d'adresse affiche ceci. Puis tu colles le lien dans une appli de texte et il devient autre chose.",
+m:browser("https://clouddеsk.com/login",true,"<div style='font-weight:800;font-size:22px'>CloudDesk</div><div style='margin-top:8px;color:#444'>Votre session a expiré. Reconnectez-vous.</div><div class='mono' style='margin-top:14px;background:#fff3cd;padding:8px;border-radius:6px'>Lien collé : https://xn--clouddsk-h8g.com/login</div>"),
+why:["Le « е » de clouddеsk est une <b>lettre cyrillique</b> identique au e latin. C'est une <b>attaque par homographe</b>.","La vraie forme de l'adresse (punycode) commence par <b>xn--</b>, ce qui montre que c'est un autre domaine.","« Votre session a expiré » est un prétexte classique pour te faire taper ton mot de passe."],lesson:"Tu ne peux pas toujours voir le piège. Va sur les sites importants par tes favoris ou un gestionnaire de mots de passe, qui ne remplira rien sur un faux domaine."}},
+
+{a:"legit",
+en:{t:"Password reset link",c:"One minute ago, you clicked \"Forgot password?\" on the CloudDesk website yourself.",
+m:mail("CloudDesk &lt;no-reply@clouddesk.com&gt;","","you@email.com","Reset your CloudDesk password","<p>We received a request to reset your password. This link expires in 15 minutes and can only be used once.</p><span class='fake'>Reset password</span><span class='hover'>https://login.clouddesk.com/reset?token=8f3a…</span><p style='margin-top:10px'>If you didn't ask for this, you can ignore this email.</p>"),
+why:["You started it yourself one minute ago.","The link's real domain is <b>clouddesk.com</b> (login is just a subdomain of the real site).","Short expiry, one-time use, and \"ignore if it wasn't you\" with no pressure."],lesson:"A link isn't always bad. What matters is: did you start it, and does the domain really belong to the company?"},
+fr:{t:"Lien de réinitialisation",c:"Il y a une minute, tu as toi-même cliqué sur « Mot de passe oublié ? » sur le site de CloudDesk.",
+m:mail("CloudDesk &lt;no-reply@clouddesk.com&gt;","","toi@email.com","Réinitialisez votre mot de passe CloudDesk","<p>Nous avons reçu une demande de réinitialisation de votre mot de passe. Ce lien expire dans 15 minutes et ne peut servir qu'une fois.</p><span class='fake'>Réinitialiser le mot de passe</span><span class='hover'>https://login.clouddesk.com/reset?token=8f3a…</span><p style='margin-top:10px'>Si vous n'avez rien demandé, ignorez ce courriel.</p>"),
+why:["C'est toi qui l'as lancé il y a une minute.","Le vrai domaine du lien est <b>clouddesk.com</b> (login n'est qu'un sous-domaine du vrai site).","Expiration courte, usage unique et « ignorez si ce n'était pas vous », sans pression."],lesson:"Un lien n'est pas toujours mauvais. Ce qui compte : est-ce toi qui l'as demandé, et le domaine appartient-il vraiment à l'entreprise ?"}},
+
+{a:"phish",
+en:{t:"Shared file from a coworker",c:"It comes from your real coworker's real work address.",
+m:mail("Marc Tremblay &lt;m.tremblay@yourcompany.com&gt;","","you@yourcompany.com","Q4 bonus list - confidential","<p>Hey, HR asked me to share this with the team before it goes out. Open it in your browser, it needs you to sign in to view.</p><span class='attach'>🌐 Q4_Bonus_List.pdf.htm</span>"),
+why:["The file ends in <b>.htm</b>, not .pdf. An HTML attachment opens a fake sign-in page right on your computer.","\"Sign in to view\" a file someone sent you is the trap.","Bonus or salary lists play on curiosity. Marc's account was likely hacked."],lesson:"Always check the real file extension. A trusted sender doesn't mean a trusted message: ask Marc another way."},
+fr:{t:"Fichier partagé par un collègue",c:"Il vient de la vraie adresse de travail de ton vrai collègue.",
+m:mail("Marc Tremblay &lt;m.tremblay@yourcompany.com&gt;","","toi@yourcompany.com","Liste des primes T4 - confidentiel","<p>Salut, les RH m'ont demandé de partager ça avec l'équipe avant l'envoi. Ouvre-le dans ton navigateur, il faut te connecter pour le voir.</p><span class='attach'>🌐 Liste_Primes_T4.pdf.htm</span>"),
+why:["Le fichier se termine par <b>.htm</b>, pas .pdf. Une pièce jointe HTML ouvre une fausse page de connexion directement sur ton ordinateur.","« Connecte-toi pour voir » un fichier qu'on t'a envoyé, c'est le piège.","Une liste de primes ou de salaires joue sur la curiosité. Le compte de Marc a sans doute été piraté."],lesson:"Vérifie toujours la vraie extension du fichier. Un expéditeur de confiance ne veut pas dire un message de confiance : demande à Marc autrement."}},
+
+{a:"phish",
+en:{t:"Subscription renewal",c:"No link, no attachment. Just this.",
+m:mail("StreamBox Billing &lt;billing@streambox-renewals.net&gt;","","you@email.com","Your 3-year plan has been renewed: $499.99","<p>Thank you! Your StreamBox Premium 3-year plan was renewed today. $499.99 will be charged to your card within 24 hours.</p><p>Didn't authorize this? Call our cancellation team now: <b>+1 (888) 555-0147</b></p><p>Order #SB-20391-77</p>"),
+why:["This is <b>callback phishing</b>: no link, so filters miss it. On the phone they'll ask you to install a \"refund\" app that gives them control of your computer.","A big surprise charge makes you panic and call.","The domain <b>streambox-renewals.net</b> isn't the company's."],lesson:"Never call a number from a surprise bill. Check your real account or bank statement yourself."},
+fr:{t:"Renouvellement d'abonnement",c:"Pas de lien, pas de pièce jointe. Juste ça.",
+m:mail("Facturation StreamBox &lt;billing@streambox-renewals.net&gt;","","toi@email.com","Votre forfait de 3 ans a été renouvelé : 499,99 $","<p>Merci ! Votre forfait StreamBox Premium de 3 ans a été renouvelé aujourd'hui. 499,99 $ seront débités de votre carte d'ici 24 heures.</p><p>Vous n'avez pas autorisé ceci ? Appelez notre équipe d'annulation : <b>+1 (888) 555-0147</b></p><p>Commande #SB-20391-77</p>"),
+why:["C'est de l'<b>hameçonnage par rappel</b> : pas de lien, donc les filtres le laissent passer. Au téléphone, on te demandera d'installer une appli de « remboursement » qui leur donne le contrôle de ton ordinateur.","Un gros montant surprise te fait paniquer et appeler.","Le domaine <b>streambox-renewals.net</b> n'est pas celui de l'entreprise."],lesson:"N'appelle jamais un numéro trouvé sur une facture surprise. Vérifie toi-même ton vrai compte ou ton relevé bancaire."}}
+];
+
+const P=[
+{en:{t:"Bank security alert",c:"Both say they're from Northpeak Bank. Hover shows where the button really goes.",why:["The fake link's real domain is <b>security-check.co</b>. \"northpeak.com\" is only a subdomain at the start.","The real one goes to <b>northpeak.com/security</b>: the domain ends right before the first /.","Same logo, same words, same sender name. Only the link is different."],lesson:"Read the link from the first / backwards."},
+ fr:{t:"Alerte de sécurité bancaire",c:"Les deux disent venir de la Banque Northpeak. Le survol montre où mène vraiment le bouton.",why:["Le vrai domaine du faux lien est <b>security-check.co</b>. « northpeak.com » n'est qu'un sous-domaine au début.","Le vrai mène à <b>northpeak.com/security</b> : le domaine se termine juste avant la première /.","Même logo, mêmes mots, même nom d'expéditeur. Seul le lien change."],lesson:"Lis le lien à reculons à partir de la première /."},
+ real:L=>mail(L.f("Northpeak Bank","alerts@northpeak.com"),"",L.you,L.en?"New device added to your account":"Nouvel appareil ajouté à votre compte",(L.en?"<p>A new device was added to your Northpeak account today at 9:42 AM. If this wasn't you, review your security settings.</p><span class='fake'>Review activity</span>":"<p>Un nouvel appareil a été ajouté à votre compte Northpeak aujourd'hui à 9 h 42. Si ce n'était pas vous, vérifiez vos paramètres de sécurité.</p><span class='fake'>Vérifier l'activité</span>")+"<span class='hover'>https://northpeak.com/security/devices</span>"),
+ fake:L=>mail(L.f("Northpeak Bank","alerts@northpeak.com"),"",L.you,L.en?"New device added to your account":"Nouvel appareil ajouté à votre compte",(L.en?"<p>A new device was added to your Northpeak account today at 9:42 AM. If this wasn't you, review your security settings.</p><span class='fake'>Review activity</span>":"<p>Un nouvel appareil a été ajouté à votre compte Northpeak aujourd'hui à 9 h 42. Si ce n'était pas vous, vérifiez vos paramètres de sécurité.</p><span class='fake'>Vérifier l'activité</span>")+"<span class='hover'>https://northpeak.com.security-check.co/devices</span>")},
+
+{en:{t:"Password reset",c:"You clicked \"Forgot password?\" on CloudDesk a minute ago. Two reset emails arrive.",why:["The fake link is <b>login-clouddesk.com</b>: a dash makes it a whole different domain.","The real one is <b>login.clouddesk.com</b>: a dot means it's a subdomain of clouddesk.com.","Attackers send fake resets exactly when people are expecting one."],lesson:"Dot = part of the real site. Dash = a different site."},
+ fr:{t:"Réinitialisation du mot de passe",c:"Tu as cliqué sur « Mot de passe oublié ? » sur CloudDesk il y a une minute. Deux courriels arrivent.",why:["Le faux lien est <b>login-clouddesk.com</b> : un tiret en fait un tout autre domaine.","Le vrai est <b>login.clouddesk.com</b> : un point veut dire sous-domaine de clouddesk.com.","Les attaquants envoient de fausses réinitialisations au moment où les gens en attendent une."],lesson:"Point = partie du vrai site. Tiret = un autre site."},
+ real:L=>mail(L.f("CloudDesk","no-reply@clouddesk.com"),"",L.you,L.en?"Reset your password":"Réinitialisez votre mot de passe",(L.en?"<p>Use this link to reset your password. It expires in 15 minutes.</p><span class='fake'>Reset password</span>":"<p>Utilisez ce lien pour réinitialiser votre mot de passe. Il expire dans 15 minutes.</p><span class='fake'>Réinitialiser</span>")+"<span class='hover'>https://login.clouddesk.com/reset?t=8f3a2c</span>"),
+ fake:L=>mail(L.f("CloudDesk","no-reply@clouddesk.com"),"",L.you,L.en?"Reset your password":"Réinitialisez votre mot de passe",(L.en?"<p>Use this link to reset your password. It expires in 15 minutes.</p><span class='fake'>Reset password</span>":"<p>Utilisez ce lien pour réinitialiser votre mot de passe. Il expire dans 15 minutes.</p><span class='fake'>Réinitialiser</span>")+"<span class='hover'>https://login-clouddesk.com/reset?t=8f3a2c</span>")},
+
+{en:{t:"Message from the CEO",c:"Daniel Roy is your real CEO. Both messages ask for the same thing.",why:["The fake comes from <b>yourcompany.co</b>, not yourcompany.com. One missing letter.","\"I can't take calls, just reply here\" stops you from checking with him.","The real one sends you to Teams, a channel you already use."],lesson:"Check every letter of the domain, especially the ending."},
+ fr:{t:"Message du PDG",c:"Daniel Roy est ton vrai PDG. Les deux messages demandent la même chose.",why:["Le faux vient de <b>yourcompany.co</b>, pas yourcompany.com. Une lettre manquante.","« Je ne peux pas prendre d'appels, réponds ici » t'empêche de vérifier avec lui.","Le vrai t'envoie vers Teams, un canal que tu utilises déjà."],lesson:"Vérifie chaque lettre du domaine, surtout la fin."},
+ real:L=>mail(L.f("Daniel Roy","daniel.roy@yourcompany.com"),"",L.youw,L.en?"Quick favor":"Petit service",L.en?"<p>Hi, can you send me the Q4 client slides before 3 PM? Drop them in our Teams chat. Thanks!</p>":"<p>Salut, peux-tu m'envoyer les diapos client du T4 avant 15 h ? Mets-les dans notre clavardage Teams. Merci !</p>"),
+ fake:L=>mail(L.f("Daniel Roy","daniel.roy@yourcompany.co"),"",L.youw,L.en?"Quick favor":"Petit service",L.en?"<p>Hi, can you send me the Q4 client slides before 3 PM? I'm in meetings and can't take calls, just reply here with them. Thanks!</p>":"<p>Salut, peux-tu m'envoyer les diapos client du T4 avant 15 h ? Je suis en réunion et ne peux pas prendre d'appels, réponds-moi ici avec. Merci !</p>")},
+
+{en:{t:"Delivery text",c:"You're waiting for a package from Shiply.",why:["The fake comes from a normal 10-digit phone number and has a link with a fee.","The real one comes from a short code, asks for nothing and sends you to the app.","Real carriers don't ask for small fees by text."],lesson:"No link + no payment + official app = safe pattern."},
+ fr:{t:"Texto de livraison",c:"Tu attends un colis de Shiply.",why:["Le faux vient d'un numéro ordinaire à 10 chiffres, avec un lien et des frais.","Le vrai vient d'un code court, ne demande rien et t'envoie vers l'appli.","Les vrais transporteurs ne demandent pas de petits frais par texto."],lesson:"Pas de lien + pas de paiement + appli officielle = bon signe."},
+ real:L=>sms("24680",L.en?"Shiply: Your parcel CA88213 is out for delivery today between 2-6 PM. Track it in the Shiply app.":"Shiply : Votre colis CA88213 sera livré aujourd'hui entre 14 h et 18 h. Suivez-le dans l'appli Shiply."),
+ fake:L=>sms("+1 (647) 555-0193",L.en?"Shiply: Your parcel CA88213 is out for delivery today between 2-6 PM. A $1.99 address fee is due: <u>shiply-track.info/CA88213</u>":"Shiply : Votre colis CA88213 sera livré aujourd'hui entre 14 h et 18 h. Des frais d'adresse de 1,99 $ sont dus : <u>shiply-track.info/CA88213</u>")},
+
+{en:{t:"Supplier invoice",c:"Same supplier, same person, same thread you've had for a year.",why:["The fake asks you to pay a <b>new bank account</b> before a deadline. The address is real because the mailbox was hacked.","The real one says the payment details are the same as usual.","Nothing in the email headers gives this away: only a phone call can."],lesson:"New bank details = call the supplier at the number you already have."},
+ fr:{t:"Facture du fournisseur",c:"Même fournisseur, même personne, même fil depuis un an.",why:["Le faux demande de payer un <b>nouveau compte bancaire</b> avant une échéance. L'adresse est vraie parce que la boîte a été piratée.","Le vrai dit que les coordonnées de paiement sont les mêmes que d'habitude.","Rien dans l'en-tête ne le trahit : seul un appel peut le détecter."],lesson:"Nouvelles coordonnées bancaires = appelle le fournisseur au numéro que tu as déjà."},
+ real:L=>mail(L.f("Sarah Kim","s.kim@brightline-supply.com"),"",L.youw,L.en?"RE: Invoice #4471 - November":"RE : Facture #4471 - novembre",(L.en?"<p>Hi! Here's November's invoice. Payment details are the same as usual. Have a good week.</p>":"<p>Bonjour ! Voici la facture de novembre. Les coordonnées de paiement sont les mêmes que d'habitude. Bonne semaine.</p>")+"<span class='attach'>📄 Invoice_4471.pdf</span>"),
+ fake:L=>mail(L.f("Sarah Kim","s.kim@brightline-supply.com"),"",L.youw,L.en?"RE: Invoice #4471 - November":"RE : Facture #4471 - novembre",(L.en?"<p>Hi! Here's November's invoice. Please note our bank changed after an audit: use the new details in the PDF before Friday. Have a good week.</p>":"<p>Bonjour ! Voici la facture de novembre. Notez que notre banque a changé après un audit : utilisez les nouvelles coordonnées du PDF avant vendredi. Bonne semaine.</p>")+"<span class='attach'>📄 Invoice_4471.pdf</span>")},
+
+{en:{t:"Sign-in page",c:"Two CloudDesk login pages. The addresses look the same. The second line shows the address when you paste it somewhere.",why:["The fake uses a <b>Cyrillic \"е\"</b> that looks exactly like a normal e. Pasted, it becomes <b>xn--clouddsk-h8g.com</b>.","The real one stays <b>clouddesk.com</b> when pasted.","Your eyes can't catch this one. A password manager can: it won't fill in on the fake domain."],lesson:"If your password manager doesn't autofill, stop and check."},
+ fr:{t:"Page de connexion",c:"Deux pages de connexion CloudDesk. Les adresses semblent identiques. La 2e ligne montre l'adresse une fois collée ailleurs.",why:["Le faux utilise un <b>« е » cyrillique</b> identique au e normal. Collé, il devient <b>xn--clouddsk-h8g.com</b>.","Le vrai reste <b>clouddesk.com</b> une fois collé.","Tes yeux ne peuvent pas le voir. Un gestionnaire de mots de passe, oui : il ne remplit rien sur le faux domaine."],lesson:"Si ton gestionnaire de mots de passe ne remplit pas, arrête et vérifie."},
+ real:L=>browser("https://clouddesk.com/login",true,"<div style='font-weight:800;font-size:20px'>CloudDesk</div><div class='mono' style='margin-top:12px;background:#fff3cd;padding:6px;border-radius:6px'>"+(L.en?"Pasted":"Collé")+": https://clouddesk.com/login</div>"),
+ fake:L=>browser("https://clouddеsk.com/login",true,"<div style='font-weight:800;font-size:20px'>CloudDesk</div><div class='mono' style='margin-top:12px;background:#fff3cd;padding:6px;border-radius:6px'>"+(L.en?"Pasted":"Collé")+": https://xn--clouddsk-h8g.com/login</div>")},
+
+{en:{t:"Shared file",c:"Your coworker Marc shares a file from his real work address.",why:["The fake attachment is <b>.pdf.htm</b>: a web page pretending to be a PDF that will ask you to sign in.","The real one is a normal <b>.pdf</b> and doesn't ask you to log in to read it.","Same sender, same subject: Marc's account was hacked for the fake one."],lesson:"Always look at the very last extension of a file."},
+ fr:{t:"Fichier partagé",c:"Ton collègue Marc partage un fichier depuis sa vraie adresse de travail.",why:["La fausse pièce jointe est <b>.pdf.htm</b> : une page web déguisée en PDF qui te demandera de te connecter.","La vraie est un <b>.pdf</b> normal et ne demande pas de connexion pour la lire.","Même expéditeur, même objet : le compte de Marc a été piraté pour le faux."],lesson:"Regarde toujours la toute dernière extension d'un fichier."},
+ real:L=>mail(L.f("Marc Tremblay","m.tremblay@yourcompany.com"),"",L.youw,L.en?"Updated schedule":"Horaire mis à jour",(L.en?"<p>Here's the updated December schedule, have a look when you can.</p>":"<p>Voici l'horaire de décembre mis à jour, jette un œil quand tu peux.</p>")+"<span class='attach'>📄 December_Schedule.pdf</span>"),
+ fake:L=>mail(L.f("Marc Tremblay","m.tremblay@yourcompany.com"),"",L.youw,L.en?"Updated schedule":"Horaire mis à jour",(L.en?"<p>Here's the updated December schedule, have a look when you can. You may need to sign in to view it.</p>":"<p>Voici l'horaire de décembre mis à jour, jette un œil quand tu peux. Tu devras peut-être te connecter pour le voir.</p>")+"<span class='attach'>🌐 December_Schedule.pdf.htm</span>")},
+
+{en:{t:"Approve sign-in?",c:"Two sign-in requests on your phone. In one, you're signing in right now on your laptop.",why:["The fake arrives at <b>3:12 AM</b> from another country while you're asleep: someone has your password (MFA fatigue).","The real one matches you: your city, your browser, right when you're signing in.","The real one also asks you to type the number shown on your screen, which an attacker can't see."],lesson:"Only approve what you just started yourself."},
+ fr:{t:"Approuver la connexion ?",c:"Deux demandes de connexion sur ton téléphone. Pour l'une, tu es en train de te connecter sur ton portable.",why:["Le faux arrive à <b>3 h 12</b> depuis un autre pays pendant que tu dors : quelqu'un a ton mot de passe (fatigue MFA).","Le vrai te correspond : ta ville, ton navigateur, au moment où tu te connectes.","Le vrai demande aussi de taper le nombre affiché sur ton écran, que l'attaquant ne voit pas."],lesson:"N'approuve que ce que tu viens toi-même de lancer."},
+ real:L=>`<div class="phone"><div class="who">${L.en?"1:04 PM":"13 h 04"}</div><div class="push"><div class="app"><span>🔐 CloudDesk Authenticator</span><span>${L.en?"now":"maint."}</span></div><b>${L.en?"Enter the number on your screen":"Entrez le nombre affiché à l'écran"}</b><br>Montréal, QC · Chrome · Windows<div class="acts"><span>__ __</span></div></div></div>`,
+ fake:L=>`<div class="phone"><div class="who">${L.en?"3:12 AM":"3 h 12"}</div><div class="push"><div class="app"><span>🔐 CloudDesk Authenticator</span><span>${L.en?"now":"maint."}</span></div><b>${L.en?"Approve sign-in?":"Approuver la connexion ?"}</b><br>Lagos, Nigeria · Chrome · Windows<div class="acts"><span>${L.en?"Deny":"Refuser"}</span><span>${L.en?"Approve":"Approuver"}</span></div></div></div>`}
+];
+let lang=(navigator.language||"en").toLowerCase().startsWith("fr")?"fr":"en";
+let mode="pair",order=[],sides=[],i=0,ans=[];
+const Lx=()=>({en:lang==="en",you:lang==="en"?"you@email.com":"toi@email.com",youw:lang==="en"?"you@yourcompany.com":"toi@yourcompany.com",f:(n,a)=>`${n} &lt;${a}&gt;`});
+const list=()=>mode==="pair"?P:Q;
+const score=()=>ans.filter(a=>a&&a.ok).length;
+function setLang(l){lang=l;document.documentElement.lang=l;
+ bEN.classList.toggle("on",l==="en");bFR.classList.toggle("on",l==="fr");
+ document.querySelectorAll("[data-t]").forEach(e=>e.textContent=UI[l][e.dataset.t]);
+ rules.innerHTML=UI[l].rules.map(r=>`<li>${r}</li>`).join("");
+ if(!quiz.classList.contains("hidden"))render();
+ if(!end.classList.contains("hidden"))showEnd();}
+function shuffle(a){for(let k=a.length-1;k>0;k--){const j=Math.floor(Math.random()*(k+1));[a[k],a[j]]=[a[j],a[k]]}return a}
+function begin(m){mode=m;order=shuffle([...list().keys()]);sides=order.map(()=>Math.random()<.5);i=0;ans=[];
+ start.classList.add("hidden");end.classList.add("hidden");quiz.classList.remove("hidden");render();window.scrollTo(0,0)}
+function home(){end.classList.add("hidden");quiz.classList.add("hidden");start.classList.remove("hidden");window.scrollTo(0,0)}
+function fixLabels(h){return lang==="fr"?h.replace(/<b>From<\/b>/g,"<b>De</b>").replace(/<b>Reply-To<\/b>/g,"<b>Répondre à</b>").replace(/<b>To<\/b>/g,"<b>À</b>"):h}
+function render(){const u=UI[lang],n=list().length,item=list()[order[i]],t=item[lang],a=ans[i];
+ count.textContent=`${u.q} ${i+1} ${u.of} ${n}`;scoreTxt.textContent=`${u.score}: ${score()}`;
+ prog.style.width=(i/n*100)+"%";qtitle.textContent=(mode==="pair"?u.which+" · ":"")+t.t;ctx.textContent=t.c;
+ if(mode==="pair"){const L=Lx(),fakeLeft=sides[i];
+  const card=(isFake,lab)=>{let cls="side";if(a)cls+=isFake?" isfake":" isreal";
+   return `<div class="${cls}"><div class="lbl">${lab}${a?` <span class="badge">${isFake?u.fakeB:u.realB}</span>`:""}</div>${fixLabels(isFake?item.fake(L):item.real(L))}<button class="pickbtn" ${a?"disabled":""} onclick="pick(${isFake})" style="${a&&a.pick===isFake?"background:#000;color:#fff":""}">${u.thisFake}</button></div>`};
+  mock.innerHTML=`<div class="pairs">${fakeLeft?card(true,"A")+card(false,"B"):card(false,"A")+card(true,"B")}</div>`;
+  single.classList.add("hidden");
+ }else{mock.innerHTML=fixLabels(t.m);single.classList.remove("hidden");cP.textContent=u.phish;cL.textContent=u.legit;
+  [cP,cL].forEach(b=>{b.disabled=!!a;b.classList.remove("pick")});if(a)(a.pick==="phish"?cP:cL).classList.add("pick")}
+ verdict.innerHTML=a?verdictHTML(a.ok):"";
+ backBtn.textContent=i===0?u.home:u.back;
+ nextBtn.textContent=i===n-1?u.finish:u.next;nextBtn.classList.toggle("hidden",!a)}
+function verdictHTML(ok){const item=list()[order[i]],t=item[lang],u=UI[lang];
+ const head=mode==="pair"?`${u.fakeWas} ${sides[i]?"A":"B"}`:`${u.was} ${item.a==="phish"?u.isP:u.isL}`;
+ return `<div class="verdict ${ok?"ok":"no"}"><h3>${ok?"✅ "+u.ok:"❌ "+u.no}</h3><div class="ans">${head}</div><div style="margin-top:8px;font-weight:700">${u.why}</div><ul>${t.why.map(w=>`<li>${w}</li>`).join("")}</ul><div class="lesson">💡 ${u.lesson} ${t.lesson}</div></div>`}
+function record(ok,p){ans[i]={ok,pick:p};render();
+ if(window.goatcounter&&goatcounter.count)goatcounter.count({path:`phishing-quiz/${mode}-q${order[i]+1}-${ok?"right":"wrong"}`,event:true})}
+function pick(isFake){if(ans[i])return;record(isFake,isFake)}
+function answer(p){if(ans[i])return;record(p===Q[order[i]].a,p)}
+function back(){if(i===0){home();return}i--;render();quiz.scrollIntoView({behavior:"smooth"})}
+function next(){if(i<list().length-1){i++;render();quiz.scrollIntoView({behavior:"smooth"})}else{quiz.classList.add("hidden");end.classList.remove("hidden");showEnd();window.scrollTo(0,0);
+ if(window.goatcounter&&goatcounter.count)goatcounter.count({path:`phishing-quiz/${mode}-score-${score()}`,event:true})}}
+function showEnd(){const u=UI[lang],n=list().length,s=score(),pct=s/n;final.textContent=`${s} / ${n}`;
+ const r=pct===1?u.ranks[0]:pct>=.8?u.ranks[1]:pct>=.55?u.ranks[2]:u.ranks[3];rank.textContent=r[1];rankTxt.textContent=r[2];
+ review.innerHTML=order.map((idx,k)=>{const a=ans[k],it=list()[idx];return `<div>${a&&a.ok?"✅":"❌"} ${it[lang].t}${mode==="single"?` — <b>${it.a==="phish"?u.isP:u.isL}</b>`:""}</div>`}).join("");
+ document.querySelectorAll("[data-t]").forEach(e=>e.textContent=u[e.dataset.t])}
+setLang(lang);
+
+</script>
+<script data-goatcounter="https://franckmabika.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>
